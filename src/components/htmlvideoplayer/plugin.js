@@ -535,7 +535,7 @@ define(['browser', 'require', 'events', 'apphost', 'loading', 'dom', 'playbackMa
             }
 
             else if (htmlMediaHelper.enableHlsJsPlayer(options.mediaSource.RunTimeTicks, 'Video') && val.indexOf('.m3u8') !== -1) {
-                
+
                 return setSrcWithHlsJs(self, elem, options, val);
 
             } else if (options.playMethod !== 'Transcode' && options.mediaSource.Container === 'flv') {
@@ -1330,6 +1330,10 @@ define(['browser', 'require', 'events', 'apphost', 'loading', 'dom', 'playbackMa
             }
         }
 
+        function enableCustomVideoControls() {
+            return true;
+        }
+
         function createMediaElement(options) {
 
             if (browser.tv || browser.iOS || browser.mobile) {
@@ -1348,6 +1352,7 @@ define(['browser', 'require', 'events', 'apphost', 'loading', 'dom', 'playbackMa
 
                         loading.show();
 
+                        var requiresNativeControls = !enableCustomVideoControls();
                         var dlg = document.createElement('div');
 
                         dlg.classList.add('videoPlayerContainer');
@@ -1374,7 +1379,7 @@ define(['browser', 'require', 'events', 'apphost', 'loading', 'dom', 'playbackMa
                         }
 
                         // Can't autoplay in these browsers so we need to use the full controls, at least until playback starts
-                        if (!appHost.supports('htmlvideoautoplay')) {
+                        if (requiresNativeControls) {
                             html += '<video class="' + cssClass + '" preload="metadata" autoplay="autoplay" controls="controls" webkit-playsinline playsinline>';
                         } else {
 
