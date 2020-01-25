@@ -126,7 +126,7 @@ define(['scroller', 'dom', 'layoutManager', 'inputManager', 'focusManager', 'bro
         var enableScrollButtons = layoutManager.desktop && horizontal && this.getAttribute('data-scrollbuttons') !== 'false';
 
         var options = {
-            horizontal: horizontal,
+            horizontal: true,
             mouseDragging: 1,
             mouseWheel: this.getAttribute('data-mousewheel') !== 'false',
             touchDragging: 1,
@@ -159,9 +159,7 @@ define(['scroller', 'dom', 'layoutManager', 'inputManager', 'focusManager', 'bro
             initHeadroom(this);
         }
 
-        if (enableScrollButtons) {
             loadScrollButtons(this);
-        }
     };
 
     function loadScrollButtons(scroller) {

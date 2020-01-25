@@ -16,7 +16,7 @@
     scrollbar-width: none;
 }
 
-.hiddenScrollX::-webkit-scrollbar, .layout-tv .scrollX::-webkit-scrollbar {
+.hiddenScrollX::-webkit-scrollbar, .layout-desktop .scrollX::-webkit-scrollbar {
     height: 0 !important;
     display: none;
 }
