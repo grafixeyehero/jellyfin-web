@@ -1,4 +1,4 @@
-define(['browser', 'css!./appfooter'], function (browser) {
+define(['browser', 'css!components/appfooter/appfooter'], function (browser) {
     'use strict';
 
     function render(options) {
@@ -39,5 +39,5 @@ define(['browser', 'css!./appfooter'], function (browser) {
         self.element = null;
     };
 
-    return appFooter;
+    return new appFooter;
 });

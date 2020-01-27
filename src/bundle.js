@@ -96,3 +96,8 @@ var libass_wasm = require("libass-wasm");
 _define("JavascriptSubtitlesOctopus", function() {
     return libass_wasm;
 });
+
+var queryString = require("query-string");
+_define("query-string", function () {
+    return queryString;
+})
