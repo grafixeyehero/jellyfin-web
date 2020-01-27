@@ -4011,5 +4011,15 @@ define(['events', 'datetime', 'appSettings', 'itemHelper', 'pluginManager', 'pla
         }
     };
 
-    return new PlaybackManager();
+    var _playbackManager = new PlaybackManager();
+
+    window.addEventListener("beforeunload", function () {
+        try {
+            _playbackManager.onAppClose();
+        } catch (err) {
+            console.log("error in onAppClose: " + err);
+        }
+    });
+
+    return _playbackManager;
 });

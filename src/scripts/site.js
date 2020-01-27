@@ -307,17 +307,6 @@ var AppInfo = {};
         return obj;
     }
 
-    function getPlaybackManager(playbackManager) {
-        window.addEventListener("beforeunload", function () {
-            try {
-                playbackManager.onAppClose();
-            } catch (err) {
-                console.log("error in onAppClose: " + err);
-            }
-        });
-        return playbackManager;
-    }
-
     function getLayoutManager(layoutManager, appHost) {
         if (appHost.getDefaultLayout) {
             layoutManager.defaultLayout = appHost.getDefaultLayout();
@@ -365,42 +354,12 @@ var AppInfo = {};
         };
     }
 
-    function createSharedAppFooter(appFooter) {
-        return new appFooter({});
-    }
-
     function onRequireJsError(requireType, requireModules) {
         console.log("RequireJS error: " + (requireType || "unknown") + ". Failed modules: " + (requireModules || []).join(","));
     }
 
-    function defineResizeObserver() {
-        if (self.ResizeObserver) {
-            define("ResizeObserver", [], function () {
-                return self.ResizeObserver;
-            });
-        } else {
-            define("ResizeObserver", ["resize-observer-polyfill"], returnFirstDependency);
-        }
-    }
-
     function initRequireWithBrowser(browser) {
-        if (window.IntersectionObserver && !browser.edge) {
-            define("lazyLoader", ["components/lazyloader/lazyloader-intersectionobserver"], returnFirstDependency);
-        } else {
-            define("lazyLoader", ["components/lazyloader/lazyloader-scroll"], returnFirstDependency);
-        }
-
-        if ("registerElement" in document) {
-            define("registerElement", []);
-        } else if (browser.msie) {
-            define("registerElement", ["webcomponents"], returnFirstDependency);
-        } else {
-            define("registerElement", ["document-register-element"], returnFirstDependency);
-        }
-
         var preferNativeAlerts = browser.tv;
-
-        defineResizeObserver();
 
         if (preferNativeAlerts && window.confirm) {
             define("confirm", ["components/confirm/nativeconfirm"], returnFirstDependency);
@@ -772,7 +731,11 @@ var AppInfo = {};
             "skinManager": "components/skinManager",
             "keyboardnavigation": "components/keyboardnavigation",
             "scrollManager": "components/scrollManager",
-            "autoFocuser": "components/autoFocuser"
+            "autoFocuser": "components/autoFocuser",
+            "appFooter": "components/appfooter/appfooter",
+            "playbackManager": "components/playback/playbackmanager",
+            "layoutManager": "components/layoutManager",
+            "lazyLoader": "components/lazyloader/lazyloader-intersectionobserver"
         };
 
         requirejs.onError = onRequireJsError;
@@ -814,18 +777,6 @@ var AppInfo = {};
         });
 
         require(["css!assets/css/site"]);
-
-        // define styles
-        // TODO determine which of these files can be moved to the components themselves
-        define("material-icons", ["css!assets/css/material-icons/style"], returnFirstDependency);
-
-        // there are several objects that need to be instantiated
-        // TODO find a better way to do this
-        define("appFooter", ["components/appfooter/appfooter"], returnFirstDependency);
-        define("appFooter", ["appFooter"], createSharedAppFooter);
-
-        define("playbackManager", ["components/playback/playbackmanager"], getPlaybackManager);
-        define("layoutManager", ["components/layoutManager", "apphost"], getLayoutManager);
 
         define("viewManager", ["components/viewManager/viewManager"], function (viewManager) {
             window.ViewManager = viewManager;
