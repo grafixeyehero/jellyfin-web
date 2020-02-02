@@ -231,10 +231,10 @@ var AppInfo = {};
 
     function defineConnectionManager(connectionManager) {
         window.ConnectionManager = connectionManager;
-        define("connectionManager", [], function () {
-            return connectionManager;
-        });
+        require(["ConnectionManager"]);
     }
+
+    var localApiClient;
 
     function bindConnectionManagerEvents(connectionManager, events, userSettings) {
         window.Events = events;
@@ -274,8 +274,8 @@ var AppInfo = {};
                 capabilities.DeviceProfile = deviceProfile;
 
                 var connectionManager = new ConnectionManager(credentialProviderInstance, apphost.appName(), apphost.appVersion(), apphost.deviceName(), apphost.deviceId(), capabilities, window.devicePixelRatio);
-
                 defineConnectionManager(connectionManager);
+
                 bindConnectionManagerEvents(connectionManager, events, userSettings);
 
                 if (!AppInfo.isNativeApp) {
@@ -303,81 +303,224 @@ var AppInfo = {};
         });
     }
 
-    function returnFirstDependency(obj) {
-        return obj;
-    }
-
-    function getLayoutManager(layoutManager, appHost) {
-        if (appHost.getDefaultLayout) {
-            layoutManager.defaultLayout = appHost.getDefaultLayout();
-        }
-
-        layoutManager.init();
-        return layoutManager;
-    }
-
-    function createWindowHeadroom(Headroom) {
-        var headroom = new Headroom([], {});
-        return headroom;
-    }
-
-    function getCastSenderApiLoader() {
-        var ccLoaded = false;
-        return {
-            load: function () {
-                if (ccLoaded) {
-                    return Promise.resolve();
-                }
-
-                return new Promise(function (resolve, reject) {
-                    var fileref = document.createElement("script");
-                    fileref.setAttribute("type", "text/javascript");
-
-                    fileref.onload = function () {
-                        ccLoaded = true;
-                        resolve();
-                    };
-
-                    fileref.setAttribute("src", "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js");
-                    document.querySelector("head").appendChild(fileref);
-                });
-            }
-        };
-    }
-
-    function getDummyCastSenderApiLoader() {
-        return {
-            load: function () {
-                window.chrome = window.chrome || {};
-                return Promise.resolve();
-            }
-        };
-    }
-
     function onRequireJsError(requireType, requireModules) {
         console.log("RequireJS error: " + (requireType || "unknown") + ". Failed modules: " + (requireModules || []).join(","));
     }
 
-    function initRequireWithBrowser(browser) {
-        var preferNativeAlerts = browser.tv;
+    function initRequire() {
+        var urlArgs = "v=" + (window.dashboardVersion || new Date().getDate());
+        var paths = {
+            apphost: "components/apphost",
+            autoPlayDetect: "components/playback/autoplaydetect",
+            browser: "scripts/browser",
+            browserdeviceprofile: "scripts/browserdeviceprofile",
+            datetime: "scripts/datetime",
+            focusManager: "components/focusManager",
+            globalize: "scripts/globalize",
+            humanedate: "components/humanedate",
+            imageoptionseditor: "components/imageoptionseditor/imageoptionseditor",
+            inputManager: "scripts/inputManager",
+            itemHelper: "components/itemhelper",
+            itemShortcuts: "components/shortcuts",
+            libraryBrowser: "scripts/librarybrowser",
+            libraryMenu: "scripts/librarymenu",
+            medialibrarycreator: "components/medialibrarycreator/medialibrarycreator",
+            medialibraryeditor: "components/medialibraryeditor/medialibraryeditor",
+            nowPlayingHelper: "components/playback/nowplayinghelper",
+            packageManager: "components/packagemanager",
+            playlisteditor: "components/playlisteditor/playlisteditor",
+            playQueueManager: "components/playback/playqueuemanager",
+            pluginManager: "components/pluginManager",
+            qualityoptions: "components/qualityoptions",
+            screensaverManager: "components/screensavermanager",
+            visibleinviewport: "components/visibleinviewport",
+            filesystem: "components/filesystem",
+            shell: "components/shell",
+            apiclient: "libraries/apiclient/apiclient",
+            imageFetcher: "components/images/imageFetcher",
+            alert: "components/alert",
+            dialog: "components/dialog/dialog",
+            loading: "components/loading/loading",
+            "multi-download": "components/multidownload",
+            fileDownloader: "components/filedownloader",
+            localassetmanager: "libraries/apiclient/localassetmanager",
+            transfermanager: "libraries/apiclient/sync/transfermanager",
+            filerepository: "libraries/apiclient/sync/filerepository",
+            localsync: "libraries/apiclient/sync/localsync",
+            fnchecked: "legacy/fnchecked",
+            legacyDashboard: "legacy/dashboard",
+            legacySelectMenu: "legacy/selectmenu",
+            events: "libraries/apiclient/events",
+            credentialprovider: "libraries/apiclient/credentialprovider",
+            connectionManagerFactory: "libraries/apiclient/connectionmanager",
+            appStorage: "libraries/apiclient/appStorage",
+            serversync: "libraries/apiclient/sync/serversync",
+            multiserversync: "libraries/apiclient/sync/multiserversync",
+            mediasync: "libraries/apiclient/sync/mediasync",
+            itemrepository: "libraries/apiclient/sync/itemrepository",
+            useractionrepository: "libraries/apiclient/sync/useractionrepository",
+            page: "libraries/pagejs/page",
+            headroom: "components/headroom/headroom",
+            scroller: "components/scroller",
+            navdrawer: "components/navdrawer/navdrawer",
+            "emby-button": "elements/emby-button/emby-button",
+            "paper-icon-button-light": "elements/emby-button/paper-icon-button-light",
+            "emby-checkbox": "elements/emby-checkbox/emby-checkbox",
+            "emby-collapse": "elements/emby-collapse/emby-collapse",
+            "emby-input": "elements/emby-input/emby-input",
+            "emby-progressring": "elements/emby-progressring/emby-progressring",
+            "emby-radio": "elements/emby-radio/emby-radio",
+            "emby-select": "elements/emby-select/emby-select",
+            "emby-slider": "elements/emby-slider/emby-slider",
+            "emby-textarea": "elements/emby-textarea/emby-textarea",
+            "emby-toggle": "elements/emby-toggle/emby-toggle",
+            "chromecastHelper": "components/chromecast/chromecasthelpers",
+            "mediaSession": "components/playback/mediasession",
+            "actionsheet": "components/actionsheet/actionsheet",
+            "tunerPicker": "components/tunerpicker",
+            "mainTabsManager": "components/maintabsmanager",
+            "imageLoader": "components/images/imageLoader",
+            "directorybrowser": "components/directorybrowser/directorybrowser",
+            "metadataEditor": "components/metadataeditor/metadataeditor",
+            "personEditor": "components/metadataeditor/personeditor",
+            "playerSelectionMenu": "components/playback/playerSelectionMenu",
+            "playerSettingsMenu": "components/playback/playersettingsmenu",
+            "playMethodHelper": "components/playback/playmethodhelper",
+            "brightnessOsd": "components/playback/brightnessosd",
+            "emby-itemscontainer": "components/emby-itemscontainer/emby-itemscontainer",
+            "alphaNumericShortcuts": "components/alphanumericshortcuts/alphanumericshortcuts",
+            "emby-scroller": "components/emby-scroller/emby-scroller",
+            "emby-tabs": "components/emby-tabs/emby-tabs",
+            "emby-scrollbuttons": "components/emby-scrollbuttons/emby-scrollbuttons",
+            "emby-itemrefreshindicator": "components/emby-itemrefreshindicator/emby-itemrefreshindicator",
+            "multiSelect": "components/multiselect/multiselect",
+            "alphaPicker": "components/alphapicker/alphapicker",
+            "tabbedView": "components/tabbedview/tabbedview",
+            "itemsTab": "components/tabbedview/itemstab",
+            "collectionEditor": "components/collectioneditor/collectioneditor",
+            "serverRestartDialog": "components/serverRestartDialog",
+            "playlistEditor": "components/playlisteditor/playlisteditor",
+            "recordingCreator": "components/recordingcreator/recordingcreator",
+            "recordingEditor": "components/recordingcreator/recordingeditor",
+            "seriesRecordingEditor": "components/recordingcreator/seriesrecordingeditor",
+            "recordingFields": "components/recordingcreator/recordingfields",
+            "recordingButton": "components/recordingcreator/recordingbutton",
+            "recordingHelper": "components/recordingcreator/recordinghelper",
+            "subtitleEditor": "components/subtitleeditor/subtitleeditor",
+            "subtitleSync": "components/subtitlesync/subtitlesync",
+            "itemIdentifier": "components/itemidentifier/itemidentifier",
+            "itemMediaInfo": "components/itemMediaInfo/itemMediaInfo",
+            "mediaInfo": "components/mediainfo/mediainfo",
+            "itemContextMenu": "components/itemcontextmenu",
+            "imageEditor": "components/imageeditor/imageeditor",
+            "imageDownloader": "components/imagedownloader/imagedownloader",
+            "dom": "components/dom",
+            "playerStats": "components/playerstats/playerstats",
+            "searchFields": "components/search/searchfields",
+            "searchResults": "components/search/searchresults",
+            "upNextDialog": "components/upnextdialog/upnextdialog",
+            "fullscreen-doubleclick": "components/fullscreen/fullscreen-dc",
+            "fullscreenManager": "components/fullscreenManager",
+            "subtitleAppearanceHelper": "components/subtitlesettings/subtitleappearancehelper",
+            "subtitleSettings": "components/subtitlesettings/subtitlesettings",
+            "displaySettings": "components/displaysettings/displaysettings",
+            "playbackSettings": "components/playbacksettings/playbacksettings",
+            "homescreenSettings": "components/homescreensettings/homescreensettings",
+            "homeSections": "components/homesections/homesections",
+            "playMenu": "components/playmenu",
+            "refreshDialog": "components/refreshdialog/refreshdialog",
+            "backdrop": "components/backdrop/backdrop",
+            "fetchHelper": "components/fetchhelper",
+            "cardBuilder": "components/cardbuilder/cardBuilder",
+            "peoplecardbuilder": "components/cardbuilder/peoplecardbuilder",
+            "chaptercardbuilder": "components/cardbuilder/chaptercardbuilder",
+            "deleteHelper": "components/deletehelper",
+            "tvguide": "components/guide/guide",
+            "guide-settings-dialog": "components/guide/guide-settings",
+            "loadingDialog": "components/loadingdialog/loadingdialog",
+            "slideshow": "components/slideshow/slideshow",
+            "objectassign": "components/polyfills/objectassign",
+            "focusPreventScroll": "components/polyfills/focusPreventScroll",
+            "userdataButtons": "components/userdatabuttons/userdatabuttons",
+            "emby-playstatebutton": "components/userdatabuttons/emby-playstatebutton",
+            "emby-ratingbutton": "components/userdatabuttons/emby-ratingbutton",
+            "listView": "components/listview/listview",
+            "indicators": "components/indicators/indicators",
+            "viewSettings": "components/viewsettings/viewsettings",
+            "filterMenu": "components/filtermenu/filtermenu",
+            "sortMenu": "components/sortmenu/sortmenu",
+            "idb": "components/idb",
+            "sanitizefilename": "components/sanitizefilename",
+            "toast": "components/toast/toast",
+            "scrollHelper": "components/scrollhelper",
+            "touchHelper": "components/touchhelper",
+            "appSettings": "scripts/settings/appSettings",
+            "userSettings": "scripts/settings/userSettings",
+            "imageUploader": "components/imageuploader/imageuploader",
+            "htmlMediaHelper": "components/htmlMediaHelper",
+            "viewContainer": "components/viewContainer",
+            "dialogHelper": "components/dialogHelper/dialogHelper",
+            "serverNotifications": "components/serverNotifications/serverNotifications",
+            "skinManager": "components/skinManager",
+            "keyboardnavigation": "components/keyboardnavigation",
+            "scrollManager": "components/scrollManager",
+            "autoFocuser": "components/autoFocuser",
+            "appFooter": "components/appfooter/appfooter",
+            "playbackManager": "components/playback/playbackmanager",
+            "layoutManager": "components/layoutManager",
+            "lazyLoader": "components/lazyloader/lazyloader-intersectionobserver",
+            "castSenderApiLoader": "scripts/castSenderApiLoader",
+            "confirm": "components/confirm/confirm",
+            "prompt": "components/prompt/prompt",
+            "viewManager": "components/viewManager/viewManager",
+            "appRouter": "scripts/appRouter",
+            "connectionManager": "scripts/connectionManager",
+            "apiClientResolver": "scripts/apiClientResolver"
+        };
 
-        if (preferNativeAlerts && window.confirm) {
-            define("confirm", ["components/confirm/nativeconfirm"], returnFirstDependency);
-        } else {
-            define("confirm", ["components/confirm/confirm"], returnFirstDependency);
-        }
+        requirejs.onError = onRequireJsError;
+        requirejs.config({
+            waitSeconds: 0,
+            map: {
+                "*": {
+                    css: "components/require/requirecss",
+                    text: "components/require/requiretext"
+                }
+            },
+            bundles: {
+                bundle: [
+                    "document-register-element",
+                    "fetch",
+                    "flvjs",
+                    "jstree",
+                    "jQuery",
+                    "hlsjs",
+                    "howler",
+                    "native-promise-only",
+                    "resize-observer-polyfill",
+                    "shaka",
+                    "swiper",
+                    "sortable",
+                    "libjass",
+                    "webcomponents"
+                ]
+            },
+            urlArgs: urlArgs,
+            paths: paths,
+            onError: onRequireJsError
+        });
 
-        if ((preferNativeAlerts || browser.xboxOne) && window.confirm) {
-            define("prompt", ["components/prompt/nativeprompt"], returnFirstDependency);
-        } else {
-            define("prompt", ["components/prompt/prompt"], returnFirstDependency);
-        }
+        // Expose jQuery globally
+        require(["jQuery"], function(jQuery) {
+            window.$ = jQuery;
+            window.jQuery = jQuery;
+        });
 
-        if ("cordova" === self.appMode || "android" === self.appMode) {
-            define("castSenderApiLoader", [], getDummyCastSenderApiLoader);
-        } else {
-            define("castSenderApiLoader", [], getCastSenderApiLoader);
-        }
+        require(["css!assets/css/site"]);
+
+
+
+
     }
 
     function init() {
@@ -557,8 +700,9 @@ var AppInfo = {};
         }
     }
 
+    initRequire();
+
     function onWebComponentsReady(browser) {
-        initRequireWithBrowser(browser);
 
         if (self.appMode === 'cordova' || self.appMode === 'android' || self.appMode === 'standalone') {
             AppInfo.isNativeApp = true;
@@ -570,492 +714,6 @@ var AppInfo = {};
             init();
         }
     }
-
-    var localApiClient;
-
-    (function () {
-        var urlArgs = "v=" + (window.dashboardVersion || new Date().getDate());
-        var paths = {
-            apphost: "components/apphost",
-            autoPlayDetect: "components/playback/autoplaydetect",
-            browser: "scripts/browser",
-            browserdeviceprofile: "scripts/browserdeviceprofile",
-            datetime: "scripts/datetime",
-            focusManager: "components/focusManager",
-            globalize: "scripts/globalize",
-            humanedate: "components/humanedate",
-            imageoptionseditor: "components/imageoptionseditor/imageoptionseditor",
-            inputManager: "scripts/inputManager",
-            itemHelper: "components/itemhelper",
-            itemShortcuts: "components/shortcuts",
-            libraryBrowser: "scripts/librarybrowser",
-            libraryMenu: "scripts/librarymenu",
-            medialibrarycreator: "components/medialibrarycreator/medialibrarycreator",
-            medialibraryeditor: "components/medialibraryeditor/medialibraryeditor",
-            nowPlayingHelper: "components/playback/nowplayinghelper",
-            packageManager: "components/packagemanager",
-            playlisteditor: "components/playlisteditor/playlisteditor",
-            playQueueManager: "components/playback/playqueuemanager",
-            pluginManager: "components/pluginManager",
-            qualityoptions: "components/qualityoptions",
-            screensaverManager: "components/screensavermanager",
-            visibleinviewport: "components/visibleinviewport",
-            filesystem: "components/filesystem",
-            shell: "components/shell",
-            apiclient: "libraries/apiclient/apiclient",
-            imageFetcher: "components/images/imageFetcher",
-            alert: "components/alert",
-            dialog: "components/dialog/dialog",
-            loading: "components/loading/loading",
-            "multi-download": "components/multidownload",
-            fileDownloader: "components/filedownloader",
-            localassetmanager: "libraries/apiclient/localassetmanager",
-            transfermanager: "libraries/apiclient/sync/transfermanager",
-            filerepository: "libraries/apiclient/sync/filerepository",
-            localsync: "libraries/apiclient/sync/localsync",
-            fnchecked: "legacy/fnchecked",
-            legacyDashboard: "legacy/dashboard",
-            legacySelectMenu: "legacy/selectmenu",
-            events: "libraries/apiclient/events",
-            credentialprovider: "libraries/apiclient/credentialprovider",
-            connectionManagerFactory: "libraries/apiclient/connectionmanager",
-            appStorage: "libraries/apiclient/appStorage",
-            serversync: "libraries/apiclient/sync/serversync",
-            multiserversync: "libraries/apiclient/sync/multiserversync",
-            mediasync: "libraries/apiclient/sync/mediasync",
-            itemrepository: "libraries/apiclient/sync/itemrepository",
-            useractionrepository: "libraries/apiclient/sync/useractionrepository",
-            page: "libraries/pagejs/page",
-            headroom: "components/headroom/headroom",
-            scroller: "components/scroller",
-            navdrawer: "components/navdrawer/navdrawer",
-            queryString: "libraries/query-string/index",
-            "emby-button": "elements/emby-button/emby-button",
-            "paper-icon-button-light": "elements/emby-button/paper-icon-button-light",
-            "emby-checkbox": "elements/emby-checkbox/emby-checkbox",
-            "emby-collapse": "elements/emby-collapse/emby-collapse",
-            "emby-input": "elements/emby-input/emby-input",
-            "emby-progressring": "elements/emby-progressring/emby-progressring",
-            "emby-radio": "elements/emby-radio/emby-radio",
-            "emby-select": "elements/emby-select/emby-select",
-            "emby-slider": "elements/emby-slider/emby-slider",
-            "emby-textarea": "elements/emby-textarea/emby-textarea",
-            "emby-toggle": "elements/emby-toggle/emby-toggle",
-            "chromecastHelper": "components/chromecast/chromecasthelpers",
-            "mediaSession": "components/playback/mediasession",
-            "actionsheet": "components/actionsheet/actionsheet",
-            "tunerPicker": "components/tunerpicker",
-            "mainTabsManager": "components/maintabsmanager",
-            "imageLoader": "components/images/imageLoader",
-            "directorybrowser": "components/directorybrowser/directorybrowser",
-            "metadataEditor": "components/metadataeditor/metadataeditor",
-            "personEditor": "components/metadataeditor/personeditor",
-            "playerSelectionMenu": "components/playback/playerSelectionMenu",
-            "playerSettingsMenu": "components/playback/playersettingsmenu",
-            "playMethodHelper": "components/playback/playmethodhelper",
-            "brightnessOsd": "components/playback/brightnessosd",
-            "emby-itemscontainer": "components/emby-itemscontainer/emby-itemscontainer",
-            "alphaNumericShortcuts": "components/alphanumericshortcuts/alphanumericshortcuts",
-            "emby-scroller": "components/emby-scroller/emby-scroller",
-            "emby-tabs": "components/emby-tabs/emby-tabs",
-            "emby-scrollbuttons": "components/emby-scrollbuttons/emby-scrollbuttons",
-            "emby-itemrefreshindicator": "components/emby-itemrefreshindicator/emby-itemrefreshindicator",
-            "multiSelect": "components/multiselect/multiselect",
-            "alphaPicker": "components/alphapicker/alphapicker",
-            "tabbedView": "components/tabbedview/tabbedview",
-            "itemsTab": "components/tabbedview/itemstab",
-            "collectionEditor": "components/collectioneditor/collectioneditor",
-            "serverRestartDialog": "components/serverRestartDialog",
-            "playlistEditor": "components/playlisteditor/playlisteditor",
-            "recordingCreator": "components/recordingcreator/recordingcreator",
-            "recordingEditor": "components/recordingcreator/recordingeditor",
-            "seriesRecordingEditor": "components/recordingcreator/seriesrecordingeditor",
-            "recordingFields": "components/recordingcreator/recordingfields",
-            "recordingButton": "components/recordingcreator/recordingbutton",
-            "recordingHelper": "components/recordingcreator/recordinghelper",
-            "subtitleEditor": "components/subtitleeditor/subtitleeditor",
-            "subtitleSync": "components/subtitlesync/subtitlesync",
-            "itemIdentifier": "components/itemidentifier/itemidentifier",
-            "itemMediaInfo": "components/itemMediaInfo/itemMediaInfo",
-            "mediaInfo": "components/mediainfo/mediainfo",
-            "itemContextMenu": "components/itemcontextmenu",
-            "imageEditor": "components/imageeditor/imageeditor",
-            "imageDownloader": "components/imagedownloader/imagedownloader",
-            "dom": "components/dom",
-            "playerStats": "components/playerstats/playerstats",
-            "searchFields": "components/search/searchfields",
-            "searchResults": "components/search/searchresults",
-            "upNextDialog": "components/upnextdialog/upnextdialog",
-            "fullscreen-doubleclick": "components/fullscreen/fullscreen-dc",
-            "fullscreenManager": "components/fullscreenManager",
-            "subtitleAppearanceHelper": "components/subtitlesettings/subtitleappearancehelper",
-            "subtitleSettings": "components/subtitlesettings/subtitlesettings",
-            "displaySettings": "components/displaysettings/displaysettings",
-            "playbackSettings": "components/playbacksettings/playbacksettings",
-            "homescreenSettings": "components/homescreensettings/homescreensettings",
-            "homeSections": "components/homesections/homesections",
-            "playMenu": "components/playmenu",
-            "refreshDialog": "components/refreshdialog/refreshdialog",
-            "backdrop": "components/backdrop/backdrop",
-            "fetchHelper": "components/fetchhelper",
-            "cardBuilder": "components/cardbuilder/cardBuilder",
-            "peoplecardbuilder": "components/cardbuilder/peoplecardbuilder",
-            "chaptercardbuilder": "components/cardbuilder/chaptercardbuilder",
-            "deleteHelper": "components/deletehelper",
-            "tvguide": "components/guide/guide",
-            "guide-settings-dialog": "components/guide/guide-settings",
-            "loadingDialog": "components/loadingdialog/loadingdialog",
-            "slideshow": "components/slideshow/slideshow",
-            "objectassign": "components/polyfills/objectassign",
-            "focusPreventScroll": "components/polyfills/focusPreventScroll",
-            "userdataButtons": "components/userdatabuttons/userdatabuttons",
-            "emby-playstatebutton": "components/userdatabuttons/emby-playstatebutton",
-            "emby-ratingbutton": "components/userdatabuttons/emby-ratingbutton",
-            "listView": "components/listview/listview",
-            "indicators": "components/indicators/indicators",
-            "viewSettings": "components/viewsettings/viewsettings",
-            "filterMenu": "components/filtermenu/filtermenu",
-            "sortMenu": "components/sortmenu/sortmenu",
-            "idb": "components/idb",
-            "sanitizefilename": "components/sanitizefilename",
-            "toast": "components/toast/toast",
-            "scrollHelper": "components/scrollhelper",
-            "touchHelper": "components/touchhelper",
-            "appSettings": "scripts/settings/appSettings",
-            "userSettings": "scripts/settings/userSettings",
-            "imageUploader": "components/imageuploader/imageuploader",
-            "htmlMediaHelper": "components/htmlMediaHelper",
-            "viewContainer": "components/viewContainer",
-            "dialogHelper": "components/dialogHelper/dialogHelper",
-            "serverNotifications": "components/serverNotifications/serverNotifications",
-            "skinManager": "components/skinManager",
-            "keyboardnavigation": "components/keyboardnavigation",
-            "scrollManager": "components/scrollManager",
-            "autoFocuser": "components/autoFocuser",
-            "appFooter": "components/appfooter/appfooter",
-            "playbackManager": "components/playback/playbackmanager",
-            "layoutManager": "components/layoutManager",
-            "lazyLoader": "components/lazyloader/lazyloader-intersectionobserver"
-        };
-
-        requirejs.onError = onRequireJsError;
-        requirejs.config({
-            waitSeconds: 0,
-            map: {
-                "*": {
-                    css: "components/require/requirecss",
-                    text: "components/require/requiretext"
-                }
-            },
-            bundles: {
-                bundle: [
-                    "document-register-element",
-                    "fetch",
-                    "flvjs",
-                    "jstree",
-                    "jQuery",
-                    "hlsjs",
-                    "howler",
-                    "native-promise-only",
-                    "resize-observer-polyfill",
-                    "shaka",
-                    "swiper",
-                    "sortable",
-                    "libjass",
-                    "webcomponents"
-                ]
-            },
-            urlArgs: urlArgs,
-            paths: paths,
-            onError: onRequireJsError
-        });
-
-        // Expose jQuery globally
-        require(["jQuery"], function(jQuery) {
-            window.$ = jQuery;
-            window.jQuery = jQuery;
-        });
-
-        require(["css!assets/css/site"]);
-
-        define("viewManager", ["components/viewManager/viewManager"], function (viewManager) {
-            window.ViewManager = viewManager;
-            viewManager.dispatchPageEvents(true);
-            return viewManager;
-        });
-
-        define("connectionManager", [], function () {
-            return ConnectionManager;
-        });
-        define("apiClientResolver", [], function () {
-            return function () {
-                return window.ApiClient;
-            };
-        });
-        define("appRouter", ["components/appRouter", "itemHelper"], function (appRouter, itemHelper) {
-            function showItem(item, serverId, options) {
-                if ("string" == typeof item) {
-                    require(["connectionManager"], function (connectionManager) {
-                        var apiClient = connectionManager.currentApiClient();
-                        apiClient.getItem(apiClient.getCurrentUserId(), item).then(function (item) {
-                            appRouter.showItem(item, options);
-                        });
-                    });
-                } else {
-                    if (2 == arguments.length) {
-                        options = arguments[1];
-                    }
-
-                    appRouter.show("/" + appRouter.getRouteUrl(item, options), {
-                        item: item
-                    });
-                }
-            }
-
-            appRouter.showLocalLogin = function (serverId, manualLogin) {
-                Dashboard.navigate("login.html?serverid=" + serverId);
-            };
-
-            appRouter.showVideoOsd = function () {
-                return Dashboard.navigate("videoosd.html");
-            };
-
-            appRouter.showSelectServer = function () {
-                Dashboard.navigate(AppInfo.isNativeApp ? "selectserver.html" : "login.html");
-            };
-
-            appRouter.showWelcome = function () {
-                Dashboard.navigate(AppInfo.isNativeApp ? "selectserver.html" : "login.html");
-            };
-
-            appRouter.showSettings = function () {
-                Dashboard.navigate("mypreferencesmenu.html");
-            };
-
-            appRouter.showGuide = function () {
-                Dashboard.navigate("livetv.html?tab=1");
-            };
-
-            appRouter.goHome = function () {
-                Dashboard.navigate("home.html");
-            };
-
-            appRouter.showSearch = function () {
-                Dashboard.navigate("search.html");
-            };
-
-            appRouter.showLiveTV = function () {
-                Dashboard.navigate("livetv.html");
-            };
-
-            appRouter.showRecordedTV = function () {
-                Dashboard.navigate("livetv.html?tab=3");
-            };
-
-            appRouter.showFavorites = function () {
-                Dashboard.navigate("home.html?tab=1");
-            };
-
-            appRouter.showSettings = function () {
-                Dashboard.navigate("mypreferencesmenu.html");
-            };
-
-            appRouter.showNowPlaying = function () {
-                Dashboard.navigate("nowplaying.html");
-            };
-
-            appRouter.setTitle = function (title) {
-                LibraryMenu.setTitle(title);
-            };
-
-            appRouter.getRouteUrl = function (item, options) {
-                if (!item) {
-                    throw new Error("item cannot be null");
-                }
-
-                if (item.url) {
-                    return item.url;
-                }
-
-                var context = options ? options.context : null;
-                var id = item.Id || item.ItemId;
-
-                if (!options) {
-                    options = {};
-                }
-
-                var url;
-                var itemType = item.Type || (options ? options.itemType : null);
-                var serverId = item.ServerId || options.serverId;
-
-                if ("settings" === item) {
-                    return "mypreferencesmenu.html";
-                }
-
-                if ("wizard" === item) {
-                    return "wizardstart.html";
-                }
-
-                if ("manageserver" === item) {
-                    return "dashboard.html";
-                }
-
-                if ("recordedtv" === item) {
-                    return "livetv.html?tab=3&serverId=" + options.serverId;
-                }
-
-                if ("nextup" === item) {
-                    return "list.html?type=nextup&serverId=" + options.serverId;
-                }
-
-                if ("list" === item) {
-                    var url = "list.html?serverId=" + options.serverId + "&type=" + options.itemTypes;
-
-                    if (options.isFavorite) {
-                        url += "&IsFavorite=true";
-                    }
-
-                    return url;
-                }
-
-                if ("livetv" === item) {
-                    if ("programs" === options.section) {
-                        return "livetv.html?tab=0&serverId=" + options.serverId;
-                    }
-                    if ("guide" === options.section) {
-                        return "livetv.html?tab=1&serverId=" + options.serverId;
-                    }
-
-                    if ("movies" === options.section) {
-                        return "list.html?type=Programs&IsMovie=true&serverId=" + options.serverId;
-                    }
-
-                    if ("shows" === options.section) {
-                        return "list.html?type=Programs&IsSeries=true&IsMovie=false&IsNews=false&serverId=" + options.serverId;
-                    }
-
-                    if ("sports" === options.section) {
-                        return "list.html?type=Programs&IsSports=true&serverId=" + options.serverId;
-                    }
-
-                    if ("kids" === options.section) {
-                        return "list.html?type=Programs&IsKids=true&serverId=" + options.serverId;
-                    }
-
-                    if ("news" === options.section) {
-                        return "list.html?type=Programs&IsNews=true&serverId=" + options.serverId;
-                    }
-
-                    if ("onnow" === options.section) {
-                        return "list.html?type=Programs&IsAiring=true&serverId=" + options.serverId;
-                    }
-
-                    if ("dvrschedule" === options.section) {
-                        return "livetv.html?tab=4&serverId=" + options.serverId;
-                    }
-
-                    if ("seriesrecording" === options.section) {
-                        return "livetv.html?tab=5&serverId=" + options.serverId;
-                    }
-
-                    return "livetv.html?serverId=" + options.serverId;
-                }
-
-                if ("SeriesTimer" == itemType) {
-                    return "itemdetails.html?seriesTimerId=" + id + "&serverId=" + serverId;
-                }
-
-                if ("livetv" == item.CollectionType) {
-                    return "livetv.html";
-                }
-
-                if ("Genre" === item.Type) {
-                    url = "list.html?genreId=" + item.Id + "&serverId=" + serverId;
-
-                    if ("livetv" === context) {
-                        url += "&type=Programs";
-                    }
-
-                    if (options.parentId) {
-                        url += "&parentId=" + options.parentId;
-                    }
-
-                    return url;
-                }
-
-                if ("MusicGenre" === item.Type) {
-                    url = "list.html?musicGenreId=" + item.Id + "&serverId=" + serverId;
-
-                    if (options.parentId) {
-                        url += "&parentId=" + options.parentId;
-                    }
-
-                    return url;
-                }
-
-                if ("Studio" === item.Type) {
-                    url = "list.html?studioId=" + item.Id + "&serverId=" + serverId;
-
-                    if (options.parentId) {
-                        url += "&parentId=" + options.parentId;
-                    }
-
-                    return url;
-                }
-
-                if ("folders" !== context && !itemHelper.isLocalItem(item)) {
-                    if ("movies" == item.CollectionType) {
-                        url = "movies.html?topParentId=" + item.Id;
-
-                        if (options && "latest" === options.section) {
-                            url += "&tab=1";
-                        }
-
-                        return url;
-                    }
-
-                    if ("tvshows" == item.CollectionType) {
-                        url = "tv.html?topParentId=" + item.Id;
-
-                        if (options && "latest" === options.section) {
-                            url += "&tab=2";
-                        }
-
-                        return url;
-                    }
-
-                    if ("music" == item.CollectionType) {
-                        return "music.html?topParentId=" + item.Id;
-                    }
-                }
-
-                var itemTypes = ["Playlist", "TvChannel", "Program", "BoxSet", "MusicAlbum", "MusicGenre", "Person", "Recording", "MusicArtist"];
-
-                if (itemTypes.indexOf(itemType) >= 0) {
-                    return "itemdetails.html?id=" + id + "&serverId=" + serverId;
-                }
-
-                var contextSuffix = context ? "&context=" + context : "";
-
-                if ("Series" == itemType || "Season" == itemType || "Episode" == itemType) {
-                    return "itemdetails.html?id=" + id + contextSuffix + "&serverId=" + serverId;
-                }
-
-                if (item.IsFolder) {
-                    if (id) {
-                        return "list.html?parentId=" + id + "&serverId=" + serverId;
-                    }
-
-                    return "#";
-                }
-
-                return "itemdetails.html?id=" + id + "&serverId=" + serverId;
-            };
-
-            appRouter.showItem = showItem;
-            return appRouter;
-        });
-    })();
 
     return require(["browser"], onWebComponentsReady);
 }();
