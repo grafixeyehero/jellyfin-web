@@ -1146,7 +1146,7 @@ define(['require', 'inputManager', 'browser', 'globalize', 'connectionManager', 
             }
         }
 
-        require(['text!./tvguide.template.html'], function (template) {
+        require(['text!components/guide/tvguide.template.html'], function (template) {
 
             var context = options.element;
 
