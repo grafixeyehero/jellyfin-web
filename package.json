@@ -33,6 +33,7 @@
     "jstree": "^3.3.7",
     "libass-wasm": "^2.1.1",
     "libjass": "^0.11.0",
+    "material-design-icons-iconfont": "^5.0.1",
     "native-promise-only": "^0.8.0-a",
     "query-string": "^6.10.1",
     "requirejs": "^2.3.5",

@@ -144,7 +144,7 @@ define(['layoutManager', 'browser', 'actionsheet', 'css!elements/emby-select/emb
         this.parentNode.insertBefore(label, this);
 
         if (this.classList.contains('emby-select-withcolor')) {
-            this.parentNode.insertAdjacentHTML('beforeend', '<div class="selectArrowContainer"><div style="visibility:hidden;">0</div><i class="selectArrow md-icon">keyboard_arrow_down</i></div>');
+            this.parentNode.insertAdjacentHTML('beforeend', '<div class="selectArrowContainer"><div style="visibility:hidden;">0</div><i class="selectArrow material-icons">keyboard_arrow_down</i></div>');
         }
     };
 

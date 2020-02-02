@@ -106,7 +106,14 @@ _define("JavascriptSubtitlesOctopus", function() {
     return libass_wasm;
 });
 
+// query-string
 var queryString = require("query-string");
 _define("query-string", function () {
     return queryString;
 })
+
+// material-icons
+var material_icons = require("material-design-icons-iconfont/dist/material-design-icons.css");
+_define("material-icons", function() {
+    return material_icons;
+});

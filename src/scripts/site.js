@@ -517,10 +517,6 @@ var AppInfo = {};
         });
 
         require(["css!assets/css/site"]);
-
-
-
-
     }
 
     function init() {

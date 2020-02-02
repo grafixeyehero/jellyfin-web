@@ -10,7 +10,7 @@ define(['layoutManager', 'dom', 'css!components/emby-scrollbuttons/emby-scrollbu
         var icon = direction === 'left' ? 'chevron_left' : 'chevron_right';
 
         html += '<button type="button" is="paper-icon-button-light" data-ripple="false" data-direction="' + direction + '" class="emby-scrollbuttons-button">';
-        html += '<i class="md-icon">' + icon + '</i>';
+        html += '<i class="material-icons">' + icon + '</i>';
         html += '</button>';
 
         return html;
