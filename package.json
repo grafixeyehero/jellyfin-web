@@ -102,6 +102,8 @@
           "src/components/itemidentifier/itemidentifier.js",
           "src/components/itemMediaInfo/itemMediaInfo.js",
           "src/components/lazyLoader/lazyLoaderIntersectionObserver.js",
+          "src/components/mediaLibraryCreator/mediaLibraryCreator.js",
+          "src/components/mediaLibraryEditor/mediaLibraryEditor.js",
           "src/components/playback/brightnessosd.js",
           "src/components/playback/mediasession.js",
           "src/components/playback/nowplayinghelper.js",
