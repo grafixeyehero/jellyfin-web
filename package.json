@@ -113,6 +113,7 @@
           "src/components/mediaLibraryCreator/mediaLibraryCreator.js",
           "src/components/mediaLibraryEditor/mediaLibraryEditor.js",
           "src/components/mediainfo/mediainfo.js",
+          "src/components/multiSelect/multiSelect.js",
           "src/components/listview/listview.js",
           "src/components/playback/brightnessosd.js",
           "src/components/playback/mediasession.js",
