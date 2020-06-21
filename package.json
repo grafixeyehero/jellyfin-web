@@ -102,6 +102,7 @@
           "src/components/dialog/dialog.js",
           "src/components/dialogHelper/dialogHelper.js",
           "src/components/directorybrowser/directorybrowser.js",
+          "src/components/displaySettings/displaySettings.js",
           "src/components/imageOptionsEditor/imageOptionsEditor.js",
           "src/components/channelMapper/channelMapper.js",
           "src/components/collectionEditor/collectionEditor.js",
