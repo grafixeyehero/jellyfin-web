@@ -128,6 +128,7 @@
           "src/components/playback/playmethodhelper.js",
           "src/components/playback/remotecontrolautoplay.js",
           "src/components/playback/volumeosd.js",
+          "src/components/playbackSettings/playbackSettings.js",
           "src/components/playlisteditor/playlisteditor.js",
           "src/components/prompt/prompt.js",
           "src/components/playmenu.js",
