@@ -1,20 +1,34 @@
-define(['require', 'globalize', 'appSettings', 'apphost', 'focusManager', 'loading', 'connectionManager', 'subtitleAppearanceHelper', 'dom', 'events', 'listViewStyle', 'emby-select', 'emby-input', 'emby-checkbox', 'flexStyles'], function (require, globalize, appSettings, appHost, focusManager, loading, connectionManager, subtitleAppearanceHelper, dom, events) {
-    'use strict';
+import globalize from 'globalize';
+import appSettings from 'appSettings';
+import appHost from 'apphost';
+import focusManager from 'focusManager';
+import loading from 'loading';
+import connectionManager from 'connectionManager';
+import subtitleAppearanceHelper from 'subtitleAppearanceHelper';
+import dom from 'dom';
+import events from 'events';
+import 'listViewStyle';
+import 'emby-select';
+import 'emby-input';
+import 'emby-checkbox';
+import 'flexStyles';
+
+/* eslint-disable indent */
 
     function populateLanguages(select, languages) {
-        var html = '';
+        let html = '';
 
-        html += "<option value=''>" + globalize.translate('AnyLanguage') + '</option>';
-        for (var i = 0, length = languages.length; i < length; i++) {
-            var culture = languages[i];
-            html += "<option value='" + culture.ThreeLetterISOLanguageName + "'>" + culture.DisplayName + '</option>';
+        html += `<option value=''>${globalize.translate('AnyLanguage')}</option>`;
+        for (let i = 0, length = languages.length; i < length; i++) {
+            const culture = languages[i];
+            html += `<option value='${culture.ThreeLetterISOLanguageName}'>${culture.DisplayName}</option>`;
         }
 
         select.innerHTML = html;
     }
 
     function getSubtitleAppearanceObject(context) {
-        var appearanceSettings = {};
+        const appearanceSettings = {};
 
         appearanceSettings.textSize = context.querySelector('#selectTextSize').value;
         appearanceSettings.dropShadow = context.querySelector('#selectDropShadow').value;
@@ -27,13 +41,13 @@ define(['require', 'globalize', 'appSettings', 'apphost', 'focusManager', 'loadi
 
     function loadForm(context, user, userSettings, appearanceSettings, apiClient) {
 
-        apiClient.getCultures().then(function (allCultures) {
+        apiClient.getCultures().then(allCultures => {
 
             if (appHost.supports('subtitleburnsettings') && user.Policy.EnableVideoPlaybackTranscoding) {
                 context.querySelector('.fldBurnIn').classList.remove('hide');
             }
 
-            var selectSubtitleLanguage = context.querySelector('#selectSubtitleLanguage');
+            const selectSubtitleLanguage = context.querySelector('#selectSubtitleLanguage');
 
             populateLanguages(selectSubtitleLanguage, allCultures);
 
@@ -60,7 +74,7 @@ define(['require', 'globalize', 'appSettings', 'apphost', 'focusManager', 'loadi
 
     function saveUser(context, user, userSettingsInstance, appearanceKey, apiClient) {
 
-        var appearanceSettings = userSettingsInstance.getSubtitleAppearanceSettings(appearanceKey);
+        let appearanceSettings = userSettingsInstance.getSubtitleAppearanceSettings(appearanceKey);
         appearanceSettings = Object.assign(appearanceSettings, getSubtitleAppearanceObject(context));
 
         userSettingsInstance.setSubtitleAppearanceSettings(appearanceSettings, appearanceKey);
@@ -77,33 +91,33 @@ define(['require', 'globalize', 'appSettings', 'apphost', 'focusManager', 'loadi
 
         appSettings.set('subtitleburnin', context.querySelector('#selectSubtitleBurnIn').value);
 
-        apiClient.getUser(userId).then(function (user) {
+        apiClient.getUser(userId).then(user => {
 
-            saveUser(context, user, userSettings, instance.appearanceKey, apiClient).then(function () {
+            saveUser(context, user, userSettings, instance.appearanceKey, apiClient).then(() => {
 
                 loading.hide();
                 if (enableSaveConfirmation) {
-                    require(['toast'], function (toast) {
+                    import('toast').then(({default: toast}) => {
                         toast(globalize.translate('SettingsSaved'));
                     });
                 }
 
                 events.trigger(instance, 'saved');
 
-            }, function () {
+            }, () => {
                 loading.hide();
             });
         });
     }
 
     function onSubmit(e) {
-        var self = this;
-        var apiClient = connectionManager.getApiClient(self.options.serverId);
-        var userId = self.options.userId;
-        var userSettings = self.options.userSettings;
+        const self = this;
+        const apiClient = connectionManager.getApiClient(self.options.serverId);
+        const userId = self.options.userId;
+        const userSettings = self.options.userSettings;
 
-        userSettings.setUserInfo(userId, apiClient).then(function () {
-            var enableSaveConfirmation = self.options.enableSaveConfirmation;
+        userSettings.setUserInfo(userId, apiClient).then(() => {
+            const enableSaveConfirmation = self.options.enableSaveConfirmation;
             save(self, self.options.element, userId, userSettings, apiClient, enableSaveConfirmation);
         });
 
@@ -117,22 +131,22 @@ define(['require', 'globalize', 'appSettings', 'apphost', 'focusManager', 'loadi
 
     function onSubtitleModeChange(e) {
 
-        var view = dom.parentWithClass(e.target, 'subtitlesettings');
+        const view = dom.parentWithClass(e.target, 'subtitlesettings');
 
-        var subtitlesHelp = view.querySelectorAll('.subtitlesHelp');
-        for (var i = 0, length = subtitlesHelp.length; i < length; i++) {
+        const subtitlesHelp = view.querySelectorAll('.subtitlesHelp');
+        for (let i = 0, length = subtitlesHelp.length; i < length; i++) {
             subtitlesHelp[i].classList.add('hide');
         }
-        view.querySelector('.subtitles' + this.value + 'Help').classList.remove('hide');
+        view.querySelector(`.subtitles${this.value}Help`).classList.remove('hide');
     }
 
     function onAppearanceFieldChange(e) {
 
-        var view = dom.parentWithClass(e.target, 'subtitlesettings');
+        const view = dom.parentWithClass(e.target, 'subtitlesettings');
 
-        var appearanceSettings = getSubtitleAppearanceObject(view);
+        const appearanceSettings = getSubtitleAppearanceObject(view);
 
-        var elements = {
+        const elements = {
             window: view.querySelector('.subtitleappearance-preview-window'),
             text: view.querySelector('.subtitleappearance-preview-text')
         };
@@ -142,7 +156,7 @@ define(['require', 'globalize', 'appSettings', 'apphost', 'focusManager', 'loadi
 
     function embed(options, self) {
 
-        require(['text!./subtitlesettings.template.html'], function (template) {
+        return import('text!./subtitlesettings.template.html').then(({default: template}) => {
 
             options.element.classList.add('subtitlesettings');
             options.element.innerHTML = globalize.translateDocument(template, 'core');
@@ -172,42 +186,44 @@ define(['require', 'globalize', 'appSettings', 'apphost', 'focusManager', 'loadi
         });
     }
 
-    function SubtitleSettings(options) {
+    class SubtitleSettings {
+        constructor(options) {
 
-        this.options = options;
+            this.options = options;
 
-        embed(options, this);
+            embed(options, this);
+        }
+
+        loadData() {
+
+            const self = this;
+            const context = self.options.element;
+
+            loading.show();
+
+            const userId = self.options.userId;
+            const apiClient = connectionManager.getApiClient(self.options.serverId);
+            const userSettings = self.options.userSettings;
+
+            apiClient.getUser(userId).then(user => {
+                userSettings.setUserInfo(userId, apiClient).then(() => {
+                    self.dataLoaded = true;
+
+                    const appearanceSettings = userSettings.getSubtitleAppearanceSettings(self.options.appearanceKey);
+
+                    loadForm(context, user, userSettings, appearanceSettings, apiClient);
+                });
+            });
+        }
+
+        submit() {
+            onSubmit.call(this);
+        }
+
+        destroy() {
+            this.options = null;
+        }
     }
 
-    SubtitleSettings.prototype.loadData = function () {
-
-        var self = this;
-        var context = self.options.element;
-
-        loading.show();
-
-        var userId = self.options.userId;
-        var apiClient = connectionManager.getApiClient(self.options.serverId);
-        var userSettings = self.options.userSettings;
-
-        apiClient.getUser(userId).then(function (user) {
-            userSettings.setUserInfo(userId, apiClient).then(function () {
-                self.dataLoaded = true;
-
-                var appearanceSettings = userSettings.getSubtitleAppearanceSettings(self.options.appearanceKey);
-
-                loadForm(context, user, userSettings, appearanceSettings, apiClient);
-            });
-        });
-    };
-
-    SubtitleSettings.prototype.submit = function () {
-        onSubmit.call(this);
-    };
-
-    SubtitleSettings.prototype.destroy = function () {
-        this.options = null;
-    };
-
-    return SubtitleSettings;
-});
+/* eslint-enable indent */
+export default SubtitleSettings;

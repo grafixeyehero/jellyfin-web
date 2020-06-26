@@ -1,9 +1,8 @@
-define([], function () {
-    'use strict';
+/* eslint-disable indent */
 
     function getTextStyles(settings, isCue) {
 
-        var list = [];
+        const list = [];
 
         if (isCue) {
             switch (settings.textSize || '') {
@@ -72,12 +71,12 @@ define([], function () {
                 break;
         }
 
-        var background = settings.textBackground || 'transparent';
+        const background = settings.textBackground || 'transparent';
         if (background) {
             list.push({ name: 'background-color', value: background });
         }
 
-        var textColor = settings.textColor || '#ffffff';
+        const textColor = settings.textColor || '#ffffff';
         if (textColor) {
             list.push({ name: 'color', value: textColor });
         }
@@ -122,7 +121,7 @@ define([], function () {
         return [];
     }
 
-    function getStyles(settings, isCue) {
+    export function getStyles(settings, isCue) {
 
         return {
             text: getTextStyles(settings, isCue),
@@ -132,17 +131,17 @@ define([], function () {
 
     function applyStyleList(styles, elem) {
 
-        for (var i = 0, length = styles.length; i < length; i++) {
+        for (let i = 0, length = styles.length; i < length; i++) {
 
-            var style = styles[i];
+            const style = styles[i];
 
             elem.style[style.name] = style.value;
         }
     }
 
-    function applyStyles(elements, appearanceSettings) {
+    export function applyStyles(elements, appearanceSettings) {
 
-        var styles = getStyles(appearanceSettings);
+        const styles = getStyles(appearanceSettings);
 
         if (elements.text) {
             applyStyleList(styles.text, elements.text);
@@ -152,8 +151,9 @@ define([], function () {
         }
     }
 
-    return {
-        getStyles: getStyles,
-        applyStyles: applyStyles
-    };
-});
+/* eslint-enable indent */
+
+export default {
+    getStyles: getStyles,
+    applyStyles: applyStyles
+};
