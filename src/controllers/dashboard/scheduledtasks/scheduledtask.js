@@ -6,6 +6,7 @@ import globalize from 'globalize';
 import 'emby-input';
 import 'emby-button';
 import 'emby-select';
+import 'formDialogStyle';
 
 /* eslint-disable indent */
 
