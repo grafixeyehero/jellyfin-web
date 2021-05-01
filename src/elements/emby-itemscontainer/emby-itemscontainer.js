@@ -74,8 +74,8 @@ import Sortable from 'sortablejs';
         }
 
         const self = this;
-        import('../../components/multiSelect/multiSelect').then(({default: MultiSelect}) => {
-            self.multiSelect = new MultiSelect({
+        import('../../components/multiSelect/multiSelect').then((Module) => {
+            self.multiSelect = new Module.MultiSelect({
                 container: self,
                 bindOnClick: false
             });

@@ -368,159 +368,159 @@ function onContainerClick(e) {
 
 document.addEventListener('viewbeforehide', hideSelections);
 
-export default function (options) {
-    const self = this;
+function onTapHold(e) {
+    const card = dom.parentWithClass(e.target, 'card');
 
-    const container = options.container;
-
-    function onTapHold(e) {
-        const card = dom.parentWithClass(e.target, 'card');
-
-        if (card) {
-            showSelections(card);
-        }
-
-        e.preventDefault();
-        // It won't have this if it's a hammer event
-        if (e.stopPropagation) {
-            e.stopPropagation();
-        }
-        return false;
+    if (card) {
+        showSelections(card);
     }
 
-    function getTouches(e) {
-        return e.changedTouches || e.targetTouches || e.touches;
+    e.preventDefault();
+    // It won't have this if it's a hammer event
+    if (e.stopPropagation) {
+        e.stopPropagation();
     }
+    return false;
+}
 
-    let touchTarget;
-    let touchStartTimeout;
-    let touchStartX;
-    let touchStartY;
-    function onTouchStart(e) {
+function getTouches(e) {
+    return e.changedTouches || e.targetTouches || e.touches;
+}
+
+let touchTarget;
+let touchStartTimeout;
+let touchStartX;
+let touchStartY;
+function onTouchStart(e) {
+    const touch = getTouches(e)[0];
+    touchTarget = null;
+    touchStartX = 0;
+    touchStartY = 0;
+
+    if (touch) {
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        const element = touch.target;
+
+        if (element) {
+            const card = dom.parentWithClass(element, 'card');
+
+            if (card) {
+                if (touchStartTimeout) {
+                    clearTimeout(touchStartTimeout);
+                    touchStartTimeout = null;
+                }
+
+                touchTarget = card;
+                touchStartTimeout = setTimeout(onTouchStartTimerFired, 550);
+            }
+        }
+    }
+}
+
+function onTouchMove(e) {
+    if (touchTarget) {
         const touch = getTouches(e)[0];
-        touchTarget = null;
-        touchStartX = 0;
-        touchStartY = 0;
+        let deltaX;
+        let deltaY;
 
         if (touch) {
-            touchStartX = touch.clientX;
-            touchStartY = touch.clientY;
-            const element = touch.target;
-
-            if (element) {
-                const card = dom.parentWithClass(element, 'card');
-
-                if (card) {
-                    if (touchStartTimeout) {
-                        clearTimeout(touchStartTimeout);
-                        touchStartTimeout = null;
-                    }
-
-                    touchTarget = card;
-                    touchStartTimeout = setTimeout(onTouchStartTimerFired, 550);
-                }
-            }
-        }
-    }
-
-    function onTouchMove(e) {
-        if (touchTarget) {
-            const touch = getTouches(e)[0];
-            let deltaX;
-            let deltaY;
-
-            if (touch) {
-                const touchEndX = touch.clientX || 0;
-                const touchEndY = touch.clientY || 0;
-                deltaX = Math.abs(touchEndX - (touchStartX || 0));
-                deltaY = Math.abs(touchEndY - (touchStartY || 0));
-            } else {
-                deltaX = 100;
-                deltaY = 100;
-            }
-            if (deltaX >= 5 || deltaY >= 5) {
-                onMouseOut();
-            }
-        }
-    }
-
-    function onTouchEnd() {
-        onMouseOut();
-    }
-
-    function onMouseDown(e) {
-        if (touchStartTimeout) {
-            clearTimeout(touchStartTimeout);
-            touchStartTimeout = null;
-        }
-
-        touchTarget = e.target;
-        touchStartTimeout = setTimeout(onTouchStartTimerFired, 550);
-    }
-
-    function onMouseOut() {
-        if (touchStartTimeout) {
-            clearTimeout(touchStartTimeout);
-            touchStartTimeout = null;
-        }
-        touchTarget = null;
-    }
-
-    function onTouchStartTimerFired() {
-        if (!touchTarget) {
-            return;
-        }
-
-        const card = dom.parentWithClass(touchTarget, 'card');
-        touchTarget = null;
-
-        if (card) {
-            showSelections(card);
-        }
-    }
-
-    function initTapHold(element) {
-        // mobile safari doesn't allow contextmenu override
-        if (browser.touch && !browser.safari) {
-            element.addEventListener('contextmenu', onTapHold);
+            const touchEndX = touch.clientX || 0;
+            const touchEndY = touch.clientY || 0;
+            deltaX = Math.abs(touchEndX - (touchStartX || 0));
+            deltaY = Math.abs(touchEndY - (touchStartY || 0));
         } else {
-            dom.addEventListener(element, 'touchstart', onTouchStart, {
-                passive: true
-            });
-            dom.addEventListener(element, 'touchmove', onTouchMove, {
-                passive: true
-            });
-            dom.addEventListener(element, 'touchend', onTouchEnd, {
-                passive: true
-            });
-            dom.addEventListener(element, 'touchcancel', onTouchEnd, {
-                passive: true
-            });
-            dom.addEventListener(element, 'mousedown', onMouseDown, {
-                passive: true
-            });
-            dom.addEventListener(element, 'mouseleave', onMouseOut, {
-                passive: true
-            });
-            dom.addEventListener(element, 'mouseup', onMouseOut, {
-                passive: true
-            });
+            deltaX = 100;
+            deltaY = 100;
+        }
+        if (deltaX >= 5 || deltaY >= 5) {
+            onMouseOut();
         }
     }
+}
 
-    initTapHold(container);
+function onTouchEnd() {
+    onMouseOut();
+}
 
-    if (options.bindOnClick !== false) {
-        container.addEventListener('click', onContainerClick);
+function onMouseDown(e) {
+    if (touchStartTimeout) {
+        clearTimeout(touchStartTimeout);
+        touchStartTimeout = null;
     }
 
-    self.onContainerClick = onContainerClick;
+    touchTarget = e.target;
+    touchStartTimeout = setTimeout(onTouchStartTimerFired, 550);
+}
 
-    self.destroy = () => {
-        container.removeEventListener('click', onContainerClick);
-        container.removeEventListener('contextmenu', onTapHold);
+function onMouseOut() {
+    if (touchStartTimeout) {
+        clearTimeout(touchStartTimeout);
+        touchStartTimeout = null;
+    }
+    touchTarget = null;
+}
 
-        const element = container;
+function onTouchStartTimerFired() {
+    if (!touchTarget) {
+        return;
+    }
+
+    const card = dom.parentWithClass(touchTarget, 'card');
+    touchTarget = null;
+
+    if (card) {
+        showSelections(card);
+    }
+}
+
+function initTapHold(element) {
+    // mobile safari doesn't allow contextmenu override
+    if (browser.touch && !browser.safari) {
+        element.addEventListener('contextmenu', onTapHold);
+    } else {
+        dom.addEventListener(element, 'touchstart', onTouchStart, {
+            passive: true
+        });
+        dom.addEventListener(element, 'touchmove', onTouchMove, {
+            passive: true
+        });
+        dom.addEventListener(element, 'touchend', onTouchEnd, {
+            passive: true
+        });
+        dom.addEventListener(element, 'touchcancel', onTouchEnd, {
+            passive: true
+        });
+        dom.addEventListener(element, 'mousedown', onMouseDown, {
+            passive: true
+        });
+        dom.addEventListener(element, 'mouseleave', onMouseOut, {
+            passive: true
+        });
+        dom.addEventListener(element, 'mouseup', onMouseOut, {
+            passive: true
+        });
+    }
+}
+class MultiSelect {
+    constructor(options) {
+        //const self = this;
+
+        this.container = options.container;
+
+        initTapHold(this.container);
+
+        if (options.bindOnClick !== false) {
+            this.container.addEventListener('click', onContainerClick);
+        }
+
+        this.onContainerClick = onContainerClick;
+    }
+    destroy = () => {
+        this.container.removeEventListener('click', onContainerClick);
+        this.container.removeEventListener('contextmenu', onTapHold);
+
+        const element = this.container;
 
         dom.removeEventListener(element, 'touchstart', onTouchStart, {
             passive: true
@@ -543,3 +543,4 @@ export default function (options) {
     };
 }
 
+export {MultiSelect};
