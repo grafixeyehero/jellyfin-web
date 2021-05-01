@@ -186,8 +186,8 @@ import template from './mediaLibraryCreator.template.html';
         });
     }
 
-export class showEditor {
-    constructor(options) {
+class MediaLibraryCreator {
+    show(options) {
         return new Promise((resolve) => {
             currentOptions = options;
             currentResolve = resolve;
@@ -223,4 +223,4 @@ export class showEditor {
     let isCreating = false;
 
 /* eslint-enable indent */
-export default showEditor;
+export {MediaLibraryCreator};

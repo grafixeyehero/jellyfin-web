@@ -14,8 +14,8 @@ import cardBuilder from '../../components/cardbuilder/cardBuilder';
 /* eslint-disable indent */
 
     function addVirtualFolder(page) {
-        import('../../components/mediaLibraryCreator/mediaLibraryCreator').then(({default: medialibrarycreator}) => {
-            new medialibrarycreator({
+        import('../../components/mediaLibraryCreator/mediaLibraryCreator').then((Module) => {
+            new Module.MediaLibraryCreator().show({
                 collectionTypeOptions: getCollectionTypeOptions().filter(function (f) {
                     return !f.hidden;
                 }),
@@ -29,8 +29,8 @@ import cardBuilder from '../../components/cardbuilder/cardBuilder';
     }
 
     function editVirtualFolder(page, virtualFolder) {
-        import('../../components/mediaLibraryEditor/mediaLibraryEditor').then(({default: medialibraryeditor}) => {
-            new medialibraryeditor({
+        import('../../components/mediaLibraryEditor/mediaLibraryEditor').then((Module) => {
+            new Module.MediaLibraryEditor().show({
                 refresh: shouldRefreshLibraryAfterChanges(page),
                 library: virtualFolder
             }).then(function (hasChanges) {

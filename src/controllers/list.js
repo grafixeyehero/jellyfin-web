@@ -397,8 +397,8 @@ import { appRouter } from '../components/appRouter';
     function onNewItemClick() {
         const instance = this;
 
-        import('../components/playlisteditor/playlisteditor').then(({default: playlistEditor}) => {
-            new playlistEditor({
+        import('../components/playlisteditor/playlisteditor').then((Module) => {
+            new Module.PlayListEditor().show({
                 items: [],
                 serverId: instance.params.serverId
             });
