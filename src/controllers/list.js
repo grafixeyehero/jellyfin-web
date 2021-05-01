@@ -345,8 +345,8 @@ import { appRouter } from '../components/appRouter';
     function showViewSettingsMenu() {
         const instance = this;
 
-        import('../components/viewSettings/viewSettings').then(({default: ViewSettings}) => {
-            new ViewSettings().show({
+        import('../components/viewSettings/viewSettings').then((Module) => {
+            new Module.ViewSettings().show({
                 settingsKey: instance.getSettingsKey(),
                 settings: instance.getViewSettings(),
                 visibleSettings: instance.getVisibleViewSettings()
@@ -360,8 +360,8 @@ import { appRouter } from '../components/appRouter';
     function showFilterMenu() {
         const instance = this;
 
-        import('../components/filtermenu/filtermenu').then(({default: FilterMenu}) => {
-            new FilterMenu().show({
+        import('../components/filtermenu/filtermenu').then((Module) => {
+            new Module.FilterMenu().show({
                 settingsKey: instance.getSettingsKey(),
                 settings: instance.getFilters(),
                 visibleSettings: instance.getVisibleFilters(),
@@ -379,8 +379,8 @@ import { appRouter } from '../components/appRouter';
     function showSortMenu() {
         const instance = this;
 
-        import('../components/sortmenu/sortmenu').then(({default: SortMenu}) => {
-            new SortMenu().show({
+        import('../components/sortmenu/sortmenu').then((Module) => {
+            new Module.SortMenu().show({
                 settingsKey: instance.getSettingsKey(),
                 settings: instance.getSortValues(),
                 onChange: instance.itemsContainer.refreshItems.bind(instance.itemsContainer),

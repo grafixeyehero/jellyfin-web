@@ -90,7 +90,8 @@ import template from './imageOptionsEditor.template.html';
         });
     }
 
-    function showEditor(itemType, options, availableOptions) {
+class ImageOptionsEditor {
+    show(itemType, options, availableOptions) {
         const dlg = dialogHelper.createDialog({
             size: 'small',
             removeOnClose: true,
@@ -111,12 +112,7 @@ import template from './imageOptionsEditor.template.html';
             dialogHelper.close(dlg);
         });
     }
-
-export class editor {
-    constructor() {
-        this.show = showEditor;
-    }
 }
 
 /* eslint-enable indent */
-export default editor;
+export { ImageOptionsEditor };

@@ -246,9 +246,9 @@ import '../../elements/emby-itemscontainer/emby-itemscontainer';
                 reloadItems(tabContent);
             });
             tabContent.querySelector('.btnNewCollection').addEventListener('click', () => {
-                import('../../components/collectionEditor/collectionEditor').then(({default: collectionEditor}) => {
+                import('../../components/collectionEditor/collectionEditor').then((Module) => {
                     const serverId = ApiClient.serverInfo().Id;
-                    new collectionEditor({
+                    new Module.CollectionEditor().show({
                         items: [],
                         serverId: serverId
                     });

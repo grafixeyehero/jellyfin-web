@@ -336,8 +336,8 @@ import toast from './toast/toast';
         return new Promise(function (resolve, reject) {
             switch (id) {
                 case 'addtocollection':
-                    import('./collectionEditor/collectionEditor').then(({default: collectionEditor}) => {
-                        new collectionEditor({
+                    import('./collectionEditor/collectionEditor').then((Module) => {
+                        new Module.CollectionEditor().show({
                             items: [itemId],
                             serverId: serverId
                         }).then(getResolveFunction(resolve, id, true), getResolveFunction(resolve, id));

@@ -106,4 +106,4 @@ class SortMenu {
     }
 }
 
-export default SortMenu;
+export {SortMenu};

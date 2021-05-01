@@ -305,7 +305,7 @@ import template from './libraryoptionseditor.template.html';
     }
 
     function showImageOptionsForType(type) {
-        import('../imageOptionsEditor/imageOptionsEditor').then(({default: ImageOptionsEditor}) => {
+        import('../imageOptionsEditor/imageOptionsEditor').then((Module) => {
             let typeOptions = getTypeOptions(currentLibraryOptions, type);
             if (!typeOptions) {
                 typeOptions = {
@@ -314,7 +314,7 @@ import template from './libraryoptionseditor.template.html';
                 currentLibraryOptions.TypeOptions.push(typeOptions);
             }
             const availableOptions = getTypeOptions(currentAvailableOptions || {}, type);
-            const imageOptionsEditor = new ImageOptionsEditor();
+            const imageOptionsEditor = new Module.ImageOptionsEditor();
             imageOptionsEditor.show(type, typeOptions, availableOptions);
         });
     }

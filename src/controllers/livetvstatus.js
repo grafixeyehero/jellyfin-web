@@ -163,11 +163,12 @@ function showProviderOptions(page, providerId, button) {
 }
 
 function mapChannels(page, providerId) {
-    import('../components/channelMapper/channelMapper').then(({default: channelMapper}) => {
-        new channelMapper({
+    import('../components/channelMapper/channelMapper').then((Module) => {
+        const channelMapper = new Module.ChannelMapper({
             serverId: ApiClient.serverInfo().Id,
             providerId: providerId
-        }).show();
+        });
+        channelMapper.show();
     });
 }
 

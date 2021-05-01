@@ -240,8 +240,8 @@ import confirm from '../confirm/confirm';
 
                         switch (id) {
                             case 'addtocollection':
-                                import('../collectionEditor/collectionEditor').then(({default: collectionEditor}) => {
-                                    new collectionEditor({
+                                import('../collectionEditor/collectionEditor').then((Module) => {
+                                    new Module.CollectionEditor().show({
                                         items: items,
                                         serverId: serverId
                                     });

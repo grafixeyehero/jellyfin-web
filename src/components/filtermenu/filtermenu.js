@@ -283,4 +283,4 @@ class FilterMenu {
     }
 }
 
-export default FilterMenu;
+export {FilterMenu};

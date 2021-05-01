@@ -138,4 +138,4 @@ class ViewSettings {
     }
 }
 
-export default ViewSettings;
+export {ViewSettings};
