@@ -1,5 +1,3 @@
-/* eslint-disable indent */
-
 /**
  * Module for building cards from item data.
  * @module components/cardBuilder/peoplecardbuilder
