@@ -58,7 +58,7 @@ import Sortable from 'sortablejs';
         };
     }
 
-    ItemsContainerPrototype.enableHoverMenu = function (enabled) {
+    /*ItemsContainerPrototype.enableHoverMenu = function (enabled) {
         const current = this.hoverMenu;
 
         if (!enabled) {
@@ -77,7 +77,7 @@ import Sortable from 'sortablejs';
         import('../../components/ItemHoverMenu/ItemHoverMenu').then((Module) => {
             self.hoverMenu = new Module.ItemHoverMenu(self);
         });
-    };
+    };*/
 
     ItemsContainerPrototype.enableMultiSelect = function (enabled) {
         const current = this.multiSelect;
@@ -319,9 +319,9 @@ import Sortable from 'sortablejs';
             }
         }
 
-        if (this.getAttribute('data-hovermenu') !== 'false') {
+        /*if (this.getAttribute('data-hovermenu') !== 'false') {
             this.enableHoverMenu(true);
-        }
+        }*/
 
         if (layoutManager.desktop || layoutManager.mobile) {
             if (this.getAttribute('data-multiselect') !== 'false') {
@@ -351,7 +351,7 @@ import Sortable from 'sortablejs';
     ItemsContainerPrototype.detachedCallback = function () {
         clearRefreshInterval(this);
 
-        this.enableHoverMenu(false);
+        //this.enableHoverMenu(false);
         this.enableMultiSelect(false);
         this.enableDragReordering(false);
         this.removeEventListener('click', onClick);
