@@ -1870,7 +1870,8 @@ function renderCast(page, item) {
     page.querySelector('#castCollapsible').classList.remove('hide');
     const castContent = page.querySelector('#castContent');
 
-    import('../../components/cardbuilder/peoplecardbuilder').then(({ default: peoplecardbuilder }) => {
+    import('../../components/cardbuilder/peoplecardbuilder').then((Module) => {
+        const peoplecardbuilder = new Module.PeopleCardBuilder();
         peoplecardbuilder.buildPeopleCards(people, {
             itemsContainer: castContent,
             coverImage: true,

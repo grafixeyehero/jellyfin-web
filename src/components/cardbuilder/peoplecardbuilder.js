@@ -7,7 +7,8 @@
 
 import cardBuilder from './cardBuilder';
 
-    export function buildPeopleCards(items, options) {
+class PeopleCardBuilder {
+    buildPeopleCards(items, options) {
         options = Object.assign(options || {}, {
             cardLayout: false,
             centerText: true,
@@ -19,9 +20,6 @@ import cardBuilder from './cardBuilder';
         });
         cardBuilder.buildCards(items, options);
     }
+}
 
- /* eslint-enable indent */
-
-export default {
-    buildPeopleCards: buildPeopleCards
-};
+export {PeopleCardBuilder};
