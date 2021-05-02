@@ -1824,7 +1824,8 @@ function renderScenes(page, item) {
         page.querySelector('#scenesCollapsible').classList.remove('hide');
         const scenesContent = page.querySelector('#scenesContent');
 
-        import('../../components/cardbuilder/chaptercardbuilder').then(({ default: chaptercardbuilder }) => {
+        import('../../components/cardbuilder/chaptercardbuilder').then((Module) => {
+            const chaptercardbuilder = new Module.ChapterCardBuilder();
             chaptercardbuilder.buildChapterCards(item, chapters, {
                 itemsContainer: scenesContent,
                 backdropShape: 'overflowBackdrop',
