@@ -1,4 +1,3 @@
-import 'jquery';
 import globalize from '../scripts/globalize';
 import taskButton from '../scripts/taskbutton';
 import dom from '../scripts/dom';
@@ -11,7 +10,7 @@ import '../elements/emby-itemscontainer/emby-itemscontainer';
 import '../components/cardbuilder/card.scss';
 import 'material-design-icons-iconfont';
 import '../elements/emby-button/emby-button';
-import Dashboard from '../scripts/clientUtils';
+import Dashboard, {pageIdOn} from '../scripts/clientUtils';
 import confirm from '../components/confirm/confirm';
 
 const enableFocusTransform = !browser.slow && !browser.edge;
@@ -80,15 +79,15 @@ function reload(page) {
     loading.hide();
 }
 
-function submitAddDeviceForm(page) {
+/*function submitAddDeviceForm(page) {
     page.querySelector('.dlgAddDevice').close();
     loading.show();
     ApiClient.ajax({
         type: 'POST',
         url: ApiClient.getUrl('LiveTv/TunerHosts'),
         data: JSON.stringify({
-            Type: $('#selectTunerDeviceType', page).val(),
-            Url: $('#txtDevicePath', page).val()
+            Type: page.querySelector('#selectTunerDeviceType').value,
+            Url: page.querySelector('#txtDevicePath').value
         }),
         contentType: 'application/json'
     }).then(function () {
@@ -98,11 +97,11 @@ function submitAddDeviceForm(page) {
             message: globalize.translate('ErrorAddingTunerDevice')
         });
     });
-}
+}*/
 
 function renderProviders(page, providers) {
     let html = '';
-
+    const elem = page.querySelector('.providerList');
     if (providers.length) {
         html += '<div class="paperList">';
 
@@ -127,11 +126,7 @@ function renderProviders(page, providers) {
         html += '</div>';
     }
 
-    const elem = $('.providerList', page).html(html);
-    $('.btnOptions', elem).on('click', function () {
-        const id = this.getAttribute('data-id');
-        showProviderOptions(page, id, this);
-    });
+    elem.innerHTML = html;
 }
 
 function showProviderOptions(page, providerId, button) {
@@ -294,20 +289,30 @@ function onDevicesListClick(e) {
     }
 }
 
-$(document).on('pageinit', '#liveTvStatusPage', function () {
+pageIdOn('pageinit', 'liveTvStatusPage', function () {
     const page = this;
-    $('.btnAddDevice', page).on('click', function () {
+    page.querySelector('.btnAddDevice').addEventListener('click', function() {
         addDevice();
     });
-    $('.formAddDevice', page).on('submit', function () {
+    /*page.querySelector('.formAddDevice').addEventListener('click', function() {
         submitAddDeviceForm(page);
         return false;
-    });
-    $('.btnAddProvider', page).on('click', function () {
+    });*/
+    page.querySelector('.btnAddProvider').addEventListener('click', function() {
         addProvider(this);
     });
     page.querySelector('.devicesList').addEventListener('click', onDevicesListClick);
-}).on('pageshow', '#liveTvStatusPage', function () {
+
+    page.querySelector('.providerList').addEventListener('click', function (e) {
+        const btnOptions = dom.parentWithClass(e.target, 'btnOptions');
+        if (btnOptions) {
+            const id = btnOptions.getAttribute('data-id');
+            showProviderOptions(page, id, btnOptions);
+        }
+    });
+});
+
+pageIdOn('pageshow', 'liveTvStatusPage', function () {
     const page = this;
     reload(page);
     taskButton({
@@ -316,7 +321,9 @@ $(document).on('pageinit', '#liveTvStatusPage', function () {
         taskKey: 'RefreshGuide',
         button: page.querySelector('.btnRefresh')
     });
-}).on('pagehide', '#liveTvStatusPage', function () {
+});
+
+pageIdOn('pagehide', 'liveTvStatusPage', function () {
     const page = this;
     taskButton({
         mode: 'off',
@@ -325,3 +332,4 @@ $(document).on('pageinit', '#liveTvStatusPage', function () {
         button: page.querySelector('.btnRefresh')
     });
 });
+

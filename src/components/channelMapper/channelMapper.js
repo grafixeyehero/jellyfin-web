@@ -12,137 +12,140 @@ import '../formdialog.scss';
 import ServerConnections from '../ServerConnections';
 
 class ChannelMapper {
+    currentMappingOptions;
+
     constructor(options) {
-        function mapChannel(button, channelId, providerChannelId) {
-            loading.show();
-            const providerId = options.providerId;
-            ServerConnections.getApiClient(options.serverId).ajax({
-                type: 'POST',
-                url: ApiClient.getUrl('LiveTv/ChannelMappings'),
-                data: JSON.stringify({
-                    providerId: providerId,
-                    tunerChannelId: channelId,
-                    providerChannelId: providerChannelId
-                }),
-                contentType: 'application/json',
-                dataType: 'json'
-            }).then(mapping => {
-                const listItem = dom.parentWithClass(button, 'listItem');
-                button.setAttribute('data-providerid', mapping.ProviderChannelId);
-                listItem.querySelector('.secondary').innerHTML = getMappingSecondaryName(mapping, currentMappingOptions.ProviderName);
-                loading.hide();
+        this.options = options;
+    }
+
+    mapChannel(button, channelId, providerChannelId) {
+        loading.show();
+        const providerId = this.options.providerId;
+        console.log(providerId);
+        ServerConnections.getApiClient(this.options.serverId).ajax({
+            type: 'POST',
+            url: ApiClient.getUrl('LiveTv/ChannelMappings'),
+            data: JSON.stringify({
+                providerId: providerId,
+                tunerChannelId: channelId,
+                providerChannelId: providerChannelId
+            }),
+            contentType: 'application/json',
+            dataType: 'json'
+        }).then(mapping => {
+            const listItem = dom.parentWithClass(button, 'listItem');
+            button.setAttribute('data-providerid', mapping.ProviderChannelId);
+            listItem.querySelector('.secondary').innerHTML = this.getMappingSecondaryName(mapping, this.currentMappingOptions.ProviderName);
+            loading.hide();
+        });
+    }
+
+    onChannelsElementClick = (e) => {
+        const btnMap = dom.parentWithClass(e.target, 'btnMap');
+
+        if (btnMap) {
+            const channelId = btnMap.getAttribute('data-id');
+            const providerChannelId = btnMap.getAttribute('data-providerid');
+            const menuItems = this.currentMappingOptions.ProviderChannels.map(m => {
+                return {
+                    name: m.Name,
+                    id: m.Id,
+                    selected: m.Id.toLowerCase() === providerChannelId.toLowerCase()
+                };
+            }).sort((a, b) => {
+                return a.name.localeCompare(b.name);
+            });
+            actionsheet.show({
+                positionTo: btnMap,
+                items: menuItems
+            }).then(newChannelId => {
+                this.mapChannel(btnMap, channelId, newChannelId);
             });
         }
+    };
 
-        function onChannelsElementClick(e) {
-            const btnMap = dom.parentWithClass(e.target, 'btnMap');
+    getChannelMappingOptions(serverId, providerId) {
+        const apiClient = ServerConnections.getApiClient(serverId);
+        return apiClient.getJSON(apiClient.getUrl('LiveTv/ChannelMappingOptions', {
+            providerId: providerId
+        }));
+    }
 
-            if (btnMap) {
-                const channelId = btnMap.getAttribute('data-id');
-                const providerChannelId = btnMap.getAttribute('data-providerid');
-                const menuItems = currentMappingOptions.ProviderChannels.map(m => {
-                    return {
-                        name: m.Name,
-                        id: m.Id,
-                        selected: m.Id.toLowerCase() === providerChannelId.toLowerCase()
-                    };
-                }).sort((a, b) => {
-                    return a.name.localeCompare(b.name);
-                });
-                actionsheet.show({
-                    positionTo: btnMap,
-                    items: menuItems
-                }).then(newChannelId => {
-                    mapChannel(btnMap, channelId, newChannelId);
-                });
-            }
+    getMappingSecondaryName(mapping, providerName) {
+        return `${mapping.ProviderChannelName || ''} - ${providerName}`;
+    }
+
+    getTunerChannelHtml(channel, providerName) {
+        let html = '';
+        html += '<div class="listItem">';
+        html += '<span class="material-icons listItemIcon dvr"></span>';
+        html += '<div class="listItemBody two-line">';
+        html += '<h3 class="listItemBodyText">';
+        html += channel.Name;
+        html += '</h3>';
+        html += '<div class="secondary listItemBodyText">';
+
+        if (channel.ProviderChannelName) {
+            html += this.getMappingSecondaryName(channel, providerName);
         }
 
-        function getChannelMappingOptions(serverId, providerId) {
-            const apiClient = ServerConnections.getApiClient(serverId);
-            return apiClient.getJSON(apiClient.getUrl('LiveTv/ChannelMappingOptions', {
-                providerId: providerId
-            }));
-        }
+        html += '</div>';
+        html += '</div>';
+        html += `<button class="btnMap autoSize" is="paper-icon-button-light" type="button" data-id="${channel.Id}" data-providerid="${channel.ProviderChannelId}"><span class="material-icons mode_edit"></span></button>`;
+        return html += '</div>';
+    }
 
-        function getMappingSecondaryName(mapping, providerName) {
-            return `${mapping.ProviderChannelName || ''} - ${providerName}`;
-        }
+    getEditorHtml() {
+        let html = '';
+        html += '<div class="formDialogContent smoothScrollY">';
+        html += '<div class="dialogContentInner dialog-content-centered">';
+        html += '<form style="margin:auto;">';
+        html += `<h1>${globalize.translate('Channels')}</h1>`;
+        html += '<div class="channels paperList">';
+        html += '</div>';
+        html += '</form>';
+        html += '</div>';
+        return html += '</div>';
+    }
 
-        function getTunerChannelHtml(channel, providerName) {
-            let html = '';
-            html += '<div class="listItem">';
-            html += '<span class="material-icons listItemIcon dvr"></span>';
-            html += '<div class="listItemBody two-line">';
-            html += '<h3 class="listItemBodyText">';
-            html += channel.Name;
-            html += '</h3>';
-            html += '<div class="secondary listItemBodyText">';
+    initEditor(dlg, options) {
+        this.getChannelMappingOptions(options.serverId, options.providerId).then(result => {
+            this.currentMappingOptions = result;
+            const channelsElement = dlg.querySelector('.channels');
+            channelsElement.innerHTML = result.TunerChannels.map(channel => {
+                return this.getTunerChannelHtml(channel, result.ProviderName);
+            }).join('');
+            channelsElement.addEventListener('click', this.onChannelsElementClick);
+        });
+    }
 
-            if (channel.ProviderChannelName) {
-                html += getMappingSecondaryName(channel, providerName);
-            }
-
-            html += '</div>';
-            html += '</div>';
-            html += `<button class="btnMap autoSize" is="paper-icon-button-light" type="button" data-id="${channel.Id}" data-providerid="${channel.ProviderChannelId}"><span class="material-icons mode_edit"></span></button>`;
-            return html += '</div>';
-        }
-
-        function getEditorHtml() {
-            let html = '';
-            html += '<div class="formDialogContent smoothScrollY">';
-            html += '<div class="dialogContentInner dialog-content-centered">';
-            html += '<form style="margin:auto;">';
-            html += `<h1>${globalize.translate('Channels')}</h1>`;
-            html += '<div class="channels paperList">';
-            html += '</div>';
-            html += '</form>';
-            html += '</div>';
-            return html += '</div>';
-        }
-
-        function initEditor(dlg, options) {
-            getChannelMappingOptions(options.serverId, options.providerId).then(result => {
-                currentMappingOptions = result;
-                const channelsElement = dlg.querySelector('.channels');
-                channelsElement.innerHTML = result.TunerChannels.map(channel => {
-                    return getTunerChannelHtml(channel, result.ProviderName);
-                }).join('');
-                channelsElement.addEventListener('click', onChannelsElementClick);
-            });
-        }
-
-        let currentMappingOptions;
-
-        this.show = () => {
-            const dialogOptions = {
-                removeOnClose: true
-            };
-            dialogOptions.size = 'small';
-            const dlg = dialogHelper.createDialog(dialogOptions);
-            dlg.classList.add('formDialog');
-            dlg.classList.add('ui-body-a');
-            dlg.classList.add('background-theme-a');
-            let html = '';
-            const title = globalize.translate('MapChannels');
-            html += '<div class="formDialogHeader">';
-            html += '<button is="paper-icon-button-light" class="btnCancel autoSize" tabindex="-1"><span class="material-icons arrow_back"></span></button>';
-            html += '<h3 class="formDialogHeaderTitle">';
-            html += title;
-            html += '</h3>';
-            html += '</div>';
-            html += getEditorHtml();
-            dlg.innerHTML = html;
-            initEditor(dlg, options);
-            dlg.querySelector('.btnCancel').addEventListener('click', () => {
-                dialogHelper.close(dlg);
-            });
-            return new Promise(resolve => {
-                dlg.addEventListener('close', resolve);
-                dialogHelper.open(dlg);
-            });
+    show() {
+        const dialogOptions = {
+            removeOnClose: true
         };
+        dialogOptions.size = 'small';
+        const dlg = dialogHelper.createDialog(dialogOptions);
+        dlg.classList.add('formDialog');
+        dlg.classList.add('ui-body-a');
+        dlg.classList.add('background-theme-a');
+        let html = '';
+        const title = globalize.translate('MapChannels');
+        html += '<div class="formDialogHeader">';
+        html += '<button is="paper-icon-button-light" class="btnCancel autoSize" tabindex="-1"><span class="material-icons arrow_back"></span></button>';
+        html += '<h3 class="formDialogHeaderTitle">';
+        html += title;
+        html += '</h3>';
+        html += '</div>';
+        html += this.getEditorHtml();
+        dlg.innerHTML = html;
+        this.initEditor(dlg, this.options);
+        dlg.querySelector('.btnCancel').addEventListener('click', () => {
+            dialogHelper.close(dlg);
+        });
+        return new Promise(resolve => {
+            dlg.addEventListener('close', resolve);
+            dialogHelper.open(dlg);
+        });
     }
 }
 
