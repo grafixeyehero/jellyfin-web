@@ -3,7 +3,6 @@
  * @module components/mediaLibraryEditor/mediaLibraryEditor
  */
 
-import 'jquery';
 import loading from '../loading/loading';
 import dialogHelper from '../dialogHelper/dialogHelper';
 import dom from '../../scripts/dom';
@@ -191,40 +190,40 @@ function initEditor(dlg, options) {
 }
 
 function onDialogClosed() {
-    currentDeferred.resolveWith(null, [hasChanges]);
+    currentResolve(hasChanges);
 }
 
-let currentDeferred;
+let currentResolve;
 let currentOptions;
 let hasChanges = false;
 let isCreating = false;
 
 class MediaLibraryEditor {
     show(options) {
-        const deferred = jQuery.Deferred();
-        currentOptions = options;
-        currentDeferred = deferred;
-        hasChanges = false;
-        const dlg = dialogHelper.createDialog({
-            size: 'small',
-            modal: false,
-            removeOnClose: true,
-            scrollY: false
+        return new Promise((resolve) => {
+            currentOptions = options;
+            currentResolve = resolve;
+            hasChanges = false;
+            const dlg = dialogHelper.createDialog({
+                size: 'small',
+                modal: false,
+                removeOnClose: true,
+                scrollY: false
+            });
+            dlg.classList.add('dlg-libraryeditor');
+            dlg.classList.add('ui-body-a');
+            dlg.classList.add('background-theme-a');
+            dlg.classList.add('formDialog');
+            dlg.innerHTML = globalize.translateHtml(template);
+            dlg.querySelector('.formDialogHeaderTitle').innerHTML = options.library.Name;
+            initEditor(dlg, options);
+            dlg.addEventListener('close', onDialogClosed);
+            dialogHelper.open(dlg);
+            dlg.querySelector('.btnCancel').addEventListener('click', () => {
+                dialogHelper.close(dlg);
+            });
+            refreshLibraryFromServer(dlg);
         });
-        dlg.classList.add('dlg-libraryeditor');
-        dlg.classList.add('ui-body-a');
-        dlg.classList.add('background-theme-a');
-        dlg.classList.add('formDialog');
-        dlg.innerHTML = globalize.translateHtml(template);
-        dlg.querySelector('.formDialogHeaderTitle').innerHTML = options.library.Name;
-        initEditor(dlg, options);
-        dlg.addEventListener('close', onDialogClosed);
-        dialogHelper.open(dlg);
-        dlg.querySelector('.btnCancel').addEventListener('click', () => {
-            dialogHelper.close(dlg);
-        });
-        refreshLibraryFromServer(dlg);
-        return deferred.promise();
     }
 }
 
