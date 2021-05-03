@@ -185,7 +185,7 @@ import template from './mediaLibraryCreator.template.html';
 
     function initLibraryOptions(dlg) {
         libraryoptionseditor.embed(dlg.querySelector('.libraryOptions')).then(function () {
-            dlg.querySelector('#selectCollectionType').dispatchEvent(new Event('change'));
+            dlg.querySelector('#selectCollectionType').dispatchEvent(new CustomEvent('change'));
         });
     }
 

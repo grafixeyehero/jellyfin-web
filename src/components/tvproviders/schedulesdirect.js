@@ -1,4 +1,3 @@
-import 'jquery';
 import loading from '../loading/loading';
 import globalize from '../../scripts/globalize';
 import '../../elements/emby-checkbox/emby-checkbox';
@@ -19,7 +18,7 @@ export default function (page, providerId, options) {
                 return i.Id === providerId;
             })[0] || {};
             listingsId = info.ListingsId;
-            $('#selectListing', page).val(info.ListingsId || '');
+            page.querySelector('#selectListing').value = info.ListingsId || '';
             page.querySelector('.txtUser').value = info.Username || '';
             page.querySelector('.txtPass').value = '';
             page.querySelector('.txtZipCode').value = info.ZipCode || '';
@@ -73,10 +72,12 @@ export default function (page, providerId, options) {
 
                 return 0;
             });
-            $('#selectCountry', page).html(countryList.map(function (c) {
+            const selectCountry = page.querySelector('#selectCountry');
+            selectCountry.innerHTML = countryList.map(function (c) {
                 return '<option value="' + c.value + '">' + c.name + '</option>';
-            }).join('')).val(info.Country || '');
-            $(page.querySelector('.txtZipCode')).trigger('change');
+            }).join('');
+            selectCountry.value = info.Country || '';
+            page.querySelector('.txtZipCode').dispatchEvent(new CustomEvent('change'));
         }, function () { // ApiClient.getJSON() error handler
             Dashboard.alert({
                 message: globalize.translate('ErrorGettingTvLineups')
@@ -119,7 +120,7 @@ export default function (page, providerId, options) {
     }
 
     function submitListingsForm() {
-        const selectedListingsId = $('#selectListing', page).val();
+        const selectedListingsId = page.querySelector('#selectListing').value;
 
         if (!selectedListingsId) {
             return void Dashboard.alert({
@@ -134,10 +135,10 @@ export default function (page, providerId, options) {
                 return i.Id === id;
             })[0];
             info.ZipCode = page.querySelector('.txtZipCode').value;
-            info.Country = $('#selectCountry', page).val();
+            info.Country = page.querySelector('#selectCountry').value;
             info.ListingsId = selectedListingsId;
             info.EnableAllTuners = page.querySelector('.chkAllTuners').checked;
-            info.EnabledTuners = info.EnableAllTuners ? [] : $('.chkTuner', page).get().filter(function (i) {
+            info.EnabledTuners = info.EnableAllTuners ? [] : Array.prototype.filter.call(page.querySelectorAll('.chkTuner'), function (i) {
                 return i.checked;
             }).map(function (i) {
                 return i.getAttribute('data-id');
@@ -168,7 +169,8 @@ export default function (page, providerId, options) {
 
     function refreshListings(value) {
         if (!value) {
-            return void $('#selectListing', page).html('');
+            page.querySelector('#selectListing').innerHtml = '';
+            return;
         }
 
         loading.show();
@@ -177,16 +179,16 @@ export default function (page, providerId, options) {
             url: ApiClient.getUrl('LiveTv/ListingProviders/Lineups', {
                 Id: providerId,
                 Location: value,
-                Country: $('#selectCountry', page).val()
+                Country: page.querySelector('#selectCountry').value
             }),
             dataType: 'json'
         }).then(function (result) {
-            $('#selectListing', page).html(result.map(function (o) {
+            page.querySelector('#selectListing').innerHtml = result.map(function (o) {
                 return '<option value="' + o.Id + '">' + o.Name + '</option>';
-            }));
+            });
 
             if (listingsId) {
-                $('#selectListing', page).val(listingsId);
+                page.querySelector('#selectListing').value = listingsId;
             }
 
             loading.hide();
@@ -254,15 +256,15 @@ export default function (page, providerId, options) {
         const hideSubmitButton = options.showSubmitButton === false;
         page.querySelector('.btnSubmitListings').classList.toggle('hide', hideSubmitButton);
 
-        $('.formLogin', page).on('submit', function () {
+        page.querySelector('.formLogin').addEventListener('submit', function () {
             submitLoginForm();
             return false;
         });
-        $('.formListings', page).on('submit', function () {
+        page.querySelector('.formListings').addEventListener('submit', function () {
             submitListingsForm();
             return false;
         });
-        $('.txtZipCode', page).on('change', function () {
+        page.querySelector('.txtZipCode').addEventListener('change', function () {
             refreshListings(this.value);
         });
         page.querySelector('.chkAllTuners').addEventListener('change', function (e) {
@@ -272,7 +274,7 @@ export default function (page, providerId, options) {
                 page.querySelector('.selectTunersSection').classList.remove('hide');
             }
         });
-        $('.createAccountHelp', page).html(globalize.translate('MessageCreateAccountAt', '<a is="emby-linkbutton" class="button-link" href="http://www.schedulesdirect.org" target="_blank">http://www.schedulesdirect.org</a>'));
+        page.querySelector('.createAccountHelp').innerHtml = globalize.translate('MessageCreateAccountAt', '<a is="emby-linkbutton" class="button-link" href="http://www.schedulesdirect.org" target="_blank">http://www.schedulesdirect.org</a>');
         reload();
     };
 }

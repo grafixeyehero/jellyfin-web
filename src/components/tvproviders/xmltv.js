@@ -1,4 +1,4 @@
-import 'jquery';
+import dom from '../../scripts/dom';
 import loading from '../loading/loading';
 import globalize from '../../scripts/globalize';
 import '../../elements/emby-checkbox/emby-checkbox';
@@ -76,7 +76,7 @@ export default function (page, providerId, options) {
             info.NewsCategories = getCategories(page.querySelector('.txtNews'));
             info.SportsCategories = getCategories(page.querySelector('.txtSports'));
             info.EnableAllTuners = page.querySelector('.chkAllTuners').checked;
-            info.EnabledTuners = info.EnableAllTuners ? [] : $('.chkTuner', page).get().filter(function (tuner) {
+            info.EnabledTuners = info.EnableAllTuners ? [] : Array.prototype.filter.call(page.querySelectorAll('.chkTuner'), function (tuner) {
                 return tuner.checked;
             }).map(function (tuner) {
                 return tuner.getAttribute('data-id');
@@ -143,7 +143,7 @@ export default function (page, providerId, options) {
     }
 
     function onSelectPathClick(e) {
-        const page = $(e.target).parents('.xmltvForm')[0];
+        const page = dom.parentWithClass(e.target, 'xmltvForm');
 
         import('../directorybrowser/directorybrowser').then((Module) => {
             const picker = new Module.DirectoryBrowser();
@@ -178,8 +178,10 @@ export default function (page, providerId, options) {
         const hideSubmitButton = options.showSubmitButton === false;
         page.querySelector('.btnSubmitListings').classList.toggle('hide', hideSubmitButton);
 
-        $('form', page).on('submit', function () {
+        page.querySelector('form').addEventListener('submit', function (e) {
             submitListingsForm();
+            e.preventDefault();
+            e.stopPropagation();
             return false;
         });
         page.querySelector('#btnSelectPath').addEventListener('click', onSelectPathClick);
