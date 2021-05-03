@@ -8,7 +8,6 @@
 import loading from '../loading/loading';
 import dialogHelper from '../dialogHelper/dialogHelper';
 import dom from '../../scripts/dom';
-import 'jquery';
 import libraryoptionseditor from '../libraryoptionseditor/libraryoptionseditor';
 import globalize from '../../scripts/globalize';
 import '../../elements/emby-button/emby-button';
@@ -40,8 +39,8 @@ import template from './mediaLibraryCreator.template.html';
         isCreating = true;
         loading.show();
         const dlg = dom.parentWithClass(this, 'dlg-librarycreator');
-        const name = $('#txtValue', dlg).val();
-        let type = $('#selectCollectionType', dlg).val();
+        const name = dlg.querySelector('#txtValue').value;
+        let type = dlg.querySelector('#selectCollectionType').value;
 
         if (type == 'mixed') {
             type = null;
@@ -70,9 +69,13 @@ import template from './mediaLibraryCreator.template.html';
     }
 
     function initEditor(page, collectionTypeOptions) {
-        $('#selectCollectionType', page).html(getCollectionTypeOptionsHtml(collectionTypeOptions)).val('').on('change', function () {
+        const selectCollectionType = page.querySelector('#selectCollectionType');
+        selectCollectionType.innerHTML = getCollectionTypeOptionsHtml(collectionTypeOptions);
+
+        selectCollectionType.value = '';
+        selectCollectionType.addEventListener('change', function () {
             const value = this.value;
-            const dlg = $(this).parents('.dialog')[0];
+            const dlg = dom.parentWithClass(this, 'dialog');
             libraryoptionseditor.setContentType(dlg.querySelector('.libraryOptions'), value == 'mixed' ? '' : value);
 
             if (value) {
@@ -86,11 +89,11 @@ import template from './mediaLibraryCreator.template.html';
 
                 if (index != -1) {
                     const name = this.options[index].innerHTML.replace('*', '').replace('&amp;', '&');
-                    $('#txtValue', dlg).val(name);
-                    const folderOption = collectionTypeOptions.filter(i => {
+                    dlg.querySelector('#txtValue').value = name;
+                    const folderOption = collectionTypeOptions.filter(function (i) {
                         return i.value == value;
                     })[0];
-                    $('.collectionTypeFieldDescription', dlg).html(folderOption.message || '');
+                    dlg.querySelector('.collectionTypeFieldDescription').innerHTML = folderOption.message || '';
                 }
             }
         });
@@ -181,8 +184,8 @@ import template from './mediaLibraryCreator.template.html';
     }
 
     function initLibraryOptions(dlg) {
-        libraryoptionseditor.embed(dlg.querySelector('.libraryOptions')).then(() => {
-            $('#selectCollectionType', dlg).trigger('change');
+        libraryoptionseditor.embed(dlg.querySelector('.libraryOptions')).then(function () {
+            dlg.querySelector('#selectCollectionType').dispatchEvent(new Event('change'));
         });
     }
 
