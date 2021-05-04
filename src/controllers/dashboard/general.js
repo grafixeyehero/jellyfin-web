@@ -1,4 +1,3 @@
-import 'jquery';
 import loading from '../../components/loading/loading';
 import globalize from '../../scripts/globalize';
 import '../../elements/emby-checkbox/emby-checkbox';
@@ -14,25 +13,27 @@ import alert from '../../components/alert';
     function loadPage(page, config, languageOptions, systemInfo) {
         page.querySelector('#txtServerName').value = systemInfo.ServerName;
         page.querySelector('#txtCachePath').value = systemInfo.CachePath || '';
-        $('#txtMetadataPath', page).val(systemInfo.InternalMetadataPath || '');
-        $('#txtMetadataNetworkPath', page).val(systemInfo.MetadataNetworkPath || '');
-        $('#selectLocalizationLanguage', page).html(languageOptions.map(function (language) {
+        page.querySelector('#txtMetadataPath').value = systemInfo.InternalMetadataPath || '';
+        page.querySelector('#txtMetadataNetworkPath').value = systemInfo.MetadataNetworkPath || '';
+        const elem = page.querySelector('#selectLocalizationLanguage');
+        elem.innerHTML = languageOptions.map(function (language) {
             return '<option value="' + language.Value + '">' + language.Name + '</option>';
-        })).val(config.UICulture);
+        });
+        elem.value = config.UICulture;
 
         loading.hide();
     }
 
-    function onSubmit() {
+    function onSubmit(e) {
         loading.show();
         const form = this;
-        $(form).parents('.page');
+        form.closest('.page');
         ApiClient.getServerConfiguration().then(function (config) {
-            config.ServerName = $('#txtServerName', form).val();
-            config.UICulture = $('#selectLocalizationLanguage', form).val();
+            config.ServerName = form.querySelector('#txtServerName').value;
+            config.UICulture = form.querySelector('#selectLocalizationLanguage').value;
             config.CachePath = form.querySelector('#txtCachePath').value;
-            config.MetadataPath = $('#txtMetadataPath', form).val();
-            config.MetadataNetworkPath = $('#txtMetadataNetworkPath', form).val();
+            config.MetadataPath = form.querySelector('#txtMetadataPath').value;
+            config.MetadataNetworkPath = form.querySelector('#txtMetadataNetworkPath').value;
             ApiClient.updateServerConfiguration(config).then(function() {
                 ApiClient.getNamedConfiguration(brandingConfigKey).then(function(brandingConfig) {
                     brandingConfig.LoginDisclaimer = form.querySelector('#txtLoginDisclaimer').value;
@@ -47,15 +48,18 @@ import alert from '../../components/alert';
                 Dashboard.processServerConfigurationUpdateResult();
             });
         });
+        e.preventDefault();
+        e.stopPropagation();
         return false;
     }
 
     const brandingConfigKey = 'branding';
     export default function (view) {
-        $('#btnSelectCachePath', view).on('click.selectDirectory', function () {
+        view.querySelector('#btnSelectCachePath').addEventListener('click', function () {
             import('../../components/directorybrowser/directorybrowser').then((Module) => {
                 const picker = new Module.DirectoryBrowser();
                 picker.show({
+                    path: view.querySelector('#txtCachePath').value,
                     callback: function (path) {
                         if (path) {
                             view.querySelector('#txtCachePath').value = path;
@@ -69,19 +73,19 @@ import alert from '../../components/alert';
                 });
             });
         });
-        $('#btnSelectMetadataPath', view).on('click.selectDirectory', function () {
+        view.querySelector('#btnSelectMetadataPath').addEventListener('click', function () {
             import('../../components/directorybrowser/directorybrowser').then((Module) => {
                 const picker = new Module.DirectoryBrowser();
                 picker.show({
-                    path: $('#txtMetadataPath', view).val(),
-                    networkSharePath: $('#txtMetadataNetworkPath', view).val(),
+                    path: view.querySelector('#txtMetadataPath').value,
+                    networkSharePath: view.querySelector('#txtMetadataNetworkPath').value,
                     callback: function (path, networkPath) {
                         if (path) {
-                            $('#txtMetadataPath', view).val(path);
+                            view.querySelector('#txtMetadataPath').value = path;
                         }
 
                         if (networkPath) {
-                            $('#txtMetadataNetworkPath', view).val(networkPath);
+                            view.querySelector('#txtMetadataNetworkPath').value = networkPath;
                         }
 
                         picker.close();
@@ -93,7 +97,7 @@ import alert from '../../components/alert';
                 });
             });
         });
-        $('.dashboardGeneralForm', view).off('submit', onSubmit).on('submit', onSubmit);
+        view.querySelector('.dashboardGeneralForm').addEventListener('submit', onSubmit);
         view.addEventListener('viewshow', function () {
             const promiseConfig = ApiClient.getServerConfiguration();
             const promiseLanguageOptions = ApiClient.getJSON(ApiClient.getUrl('Localization/Options'));
