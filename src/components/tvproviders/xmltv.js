@@ -1,4 +1,3 @@
-import dom from '../../scripts/dom';
 import loading from '../loading/loading';
 import globalize from '../../scripts/globalize';
 import '../../elements/emby-checkbox/emby-checkbox';
@@ -143,7 +142,7 @@ export default function (page, providerId, options) {
     }
 
     function onSelectPathClick(e) {
-        const page = dom.parentWithClass(e.target, 'xmltvForm');
+        const page = e.target.closest('.xmltvForm');
 
         import('../directorybrowser/directorybrowser').then((Module) => {
             const picker = new Module.DirectoryBrowser();

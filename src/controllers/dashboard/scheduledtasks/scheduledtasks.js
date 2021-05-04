@@ -1,4 +1,3 @@
-import 'jquery';
 import loading from '../../../components/loading/loading';
 import { Events } from 'jellyfin-apiclient';
 import globalize from '../../../scripts/globalize';
@@ -120,7 +119,7 @@ import '../../../elements/emby-button/emby-button';
             setTaskButtonIcon(elem, 'play_arrow');
             elem.title = globalize.translate('ButtonStart');
         }
-        $(elem).parents('.listItem')[0].setAttribute('data-status', state);
+        elem.closest('.listItem').setAttribute('data-status', state);
     }
 
     export default function(view) {
@@ -158,23 +157,29 @@ import '../../../elements/emby-button/emby-button';
         let pollInterval;
         const serverId = ApiClient.serverId();
 
-        $('.divScheduledTasks', view).on('click', '.btnStartTask', function() {
-            const button = this;
-            const id = button.getAttribute('data-taskid');
-            ApiClient.startScheduledTask(id).then(function() {
-                updateTaskButton(button, 'Running');
-                reloadList(view);
-            });
-        });
+        view.querySelector('.divScheduledTasks').addEventListener('click', function (e) {
+            const button = e.target.closest('.btnStartTask');
 
-        $('.divScheduledTasks', view).on('click', '.btnStopTask', function() {
-            const button = this;
-            const id = button.getAttribute('data-taskid');
-            ApiClient.stopScheduledTask(id).then(function() {
-                updateTaskButton(button, '');
-                reloadList(view);
-            });
-        });
+            if (button) {
+                const id = button.getAttribute('data-taskid');
+                ApiClient.startScheduledTask(id).then(function() {
+                    updateTaskButton(button, 'Running');
+                    reloadList(view);
+                });
+            }
+          });
+
+          view.querySelector('.divScheduledTasks').addEventListener('click', function (e) {
+            const button = e.target.closest('.btnStopTask');
+
+            if (button) {
+                const id = button.getAttribute('data-taskid');
+                ApiClient.stopScheduledTask(id).then(function() {
+                    updateTaskButton(button, '');
+                    reloadList(view);
+                });
+            }
+          });
 
         view.addEventListener('viewbeforehide', function() {
             Events.off(serverNotifications, 'ScheduledTasksInfo', onScheduledTasksUpdate);

@@ -75,7 +75,7 @@ import template from './mediaLibraryCreator.template.html';
         selectCollectionType.value = '';
         selectCollectionType.addEventListener('change', function () {
             const value = this.value;
-            const dlg = dom.parentWithClass(this, 'dialog');
+            const dlg = this.closest('.dialog');
             libraryoptionseditor.setContentType(dlg.querySelector('.libraryOptions'), value == 'mixed' ? '' : value);
 
             if (value) {

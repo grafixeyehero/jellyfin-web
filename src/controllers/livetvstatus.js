@@ -304,7 +304,7 @@ pageIdOn('pageinit', 'liveTvStatusPage', function () {
     page.querySelector('.devicesList').addEventListener('click', onDevicesListClick);
 
     page.querySelector('.providerList').addEventListener('click', function (e) {
-        const btnOptions = dom.parentWithClass(e.target, 'btnOptions');
+        const btnOptions = e.target.closest('.btnOptions');
         if (btnOptions) {
             const id = btnOptions.getAttribute('data-id');
             showProviderOptions(page, id, btnOptions);
