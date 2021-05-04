@@ -1,4 +1,3 @@
-import 'jquery';
 import loading from '../components/loading/loading';
 import globalize from '../scripts/globalize';
 import '../elements/emby-button/emby-button';
@@ -6,11 +5,11 @@ import Dashboard from '../scripts/clientUtils';
 import alert from '../components/alert';
 
 function loadPage(page, config) {
-    $('.liveTvSettingsForm', page).show();
-    $('.noLiveTvServices', page).hide();
-    $('#selectGuideDays', page).val(config.GuideDays || '');
-    $('#txtPrePaddingMinutes', page).val(config.PrePaddingSeconds / 60);
-    $('#txtPostPaddingMinutes', page).val(config.PostPaddingSeconds / 60);
+    page.querySelector('.liveTvSettingsForm').classList.remove('hide');
+    //page.querySelector('.noLiveTvServices').classList.add('hide');
+    page.querySelector('#selectGuideDays').value = config.GuideDays || '';
+    page.querySelector('#txtPrePaddingMinutes').value = config.PrePaddingSeconds / 60;
+    page.querySelector('#txtPostPaddingMinutes').value = config.PostPaddingSeconds / 60;
     page.querySelector('#txtRecordingPath').value = config.RecordingPath || '';
     page.querySelector('#txtMovieRecordingPath').value = config.MovieRecordingPath || '';
     page.querySelector('#txtSeriesRecordingPath').value = config.SeriesRecordingPath || '';
@@ -19,11 +18,11 @@ function loadPage(page, config) {
     loading.hide();
 }
 
-function onSubmit() {
+function onSubmit(e) {
     loading.show();
     const form = this;
     ApiClient.getNamedConfiguration('livetv').then(function (config) {
-        config.GuideDays = $('#selectGuideDays', form).val() || null;
+        config.GuideDays = form.querySelector('#selectGuideDays').value || null;
         const recordingPath = form.querySelector('#txtRecordingPath').value || null;
         const movieRecordingPath = form.querySelector('#txtMovieRecordingPath').value || null;
         const seriesRecordingPath = form.querySelector('#txtSeriesRecordingPath').value || null;
@@ -32,15 +31,17 @@ function onSubmit() {
         config.MovieRecordingPath = movieRecordingPath;
         config.SeriesRecordingPath = seriesRecordingPath;
         config.RecordingEncodingFormat = 'mkv';
-        config.PrePaddingSeconds = 60 * $('#txtPrePaddingMinutes', form).val();
-        config.PostPaddingSeconds = 60 * $('#txtPostPaddingMinutes', form).val();
-        config.RecordingPostProcessor = $('#txtPostProcessor', form).val();
-        config.RecordingPostProcessorArguments = $('#txtPostProcessorArguments', form).val();
+        config.PrePaddingSeconds = 60 * form.querySelector('#txtPrePaddingMinutes').value;
+        config.PostPaddingSeconds = 60 * form.querySelector('#txtPostPaddingMinutes').value;
+        config.RecordingPostProcessor = form.querySelector('#txtPostProcessor').value;
+        config.RecordingPostProcessorArguments = form.querySelector('#txtPostProcessorArguments').value;
         ApiClient.updateNamedConfiguration('livetv', config).then(function () {
             Dashboard.processServerConfigurationUpdateResult();
             showSaveMessage(recordingPathChanged);
         });
     });
+    e.preventDefault();
+    e.stopPropagation();
     return false;
 }
 
@@ -56,73 +57,87 @@ function showSaveMessage(recordingPathChanged) {
     }
 }
 
-$(document).on('pageinit', '#liveTvSettingsPage', function () {
-    const page = this;
-    $('.liveTvSettingsForm').off('submit', onSubmit).on('submit', onSubmit);
-    $('#btnSelectRecordingPath', page).on('click.selectDirectory', function () {
+export default function (view) {
+    view.querySelector('#btnSelectRecordingPath').addEventListener('click', function () {
         import('../components/directorybrowser/directorybrowser').then((Module) => {
             const picker = new Module.DirectoryBrowser();
             picker.show({
+                path: view.querySelector('#txtRecordingPath').value,
                 callback: function (path) {
                     if (path) {
-                        $('#txtRecordingPath', page).val(path);
+                        view.querySelector('#txtRecordingPath').value = path;
                     }
 
                     picker.close();
                 },
-                validateWriteable: true
+                validateWriteable: true,
+                header: globalize.translate('HeaderSelectRecordingPath'),
+                instruction: globalize.translate('HeaderSelectRecordingPathHelp')
             });
         });
     });
-    $('#btnSelectMovieRecordingPath', page).on('click.selectDirectory', function () {
+    view.querySelector('#btnSelectMovieRecordingPath').addEventListener('click', function () {
         import('../components/directorybrowser/directorybrowser').then((Module) => {
             const picker = new Module.DirectoryBrowser();
             picker.show({
+                path: view.querySelector('#txtMovieRecordingPath').value,
                 callback: function (path) {
                     if (path) {
-                        $('#txtMovieRecordingPath', page).val(path);
+                        view.querySelector('#txtMovieRecordingPath').value = path;
                     }
 
                     picker.close();
                 },
-                validateWriteable: true
+                validateWriteable: true,
+                header: globalize.translate('HeaderSelectMovieRecordingPath'),
+                instruction: globalize.translate('HeaderSelectMovieRecordingPathHelp')
             });
         });
     });
-    $('#btnSelectSeriesRecordingPath', page).on('click.selectDirectory', function () {
+    view.querySelector('#btnSelectSeriesRecordingPath').addEventListener('click', function () {
         import('../components/directorybrowser/directorybrowser').then((Module) => {
             const picker = new Module.DirectoryBrowser();
             picker.show({
+                path: view.querySelector('#txtSeriesRecordingPath').value,
                 callback: function (path) {
                     if (path) {
-                        $('#txtSeriesRecordingPath', page).val(path);
+                        view.querySelector('#txtSeriesRecordingPath').value = path;
                     }
 
                     picker.close();
                 },
-                validateWriteable: true
+                validateWriteable: true,
+                header: globalize.translate('HeaderSelectSeriesRecordingPath'),
+                instruction: globalize.translate('HeaderSelectSeriesRecordingPathHelp')
             });
         });
     });
-    $('#btnSelectPostProcessorPath', page).on('click.selectDirectory', function () {
+    view.querySelector('#btnSelectPostProcessorPath').addEventListener('click', function () {
         import('../components/directorybrowser/directorybrowser').then((Module) => {
             const picker = new Module.DirectoryBrowser();
             picker.show({
+                path: view.querySelector('#txtPostProcessor').value,
                 includeFiles: true,
                 callback: function (path) {
                     if (path) {
-                        $('#txtPostProcessor', page).val(path);
+                        view.querySelector('#txtPostProcessor').value = path;
                     }
 
                     picker.close();
-                }
+                },
+                validateWriteable: true,
+                header: globalize.translate('HeaderSelectPostProcessorPath'),
+                instruction: globalize.translate('HeaderSelectPostProcessorPathHelp')
             });
         });
     });
-}).on('pageshow', '#liveTvSettingsPage', function () {
-    loading.show();
-    const page = this;
-    ApiClient.getNamedConfiguration('livetv').then(function (config) {
-        loadPage(page, config);
+    view.querySelector('.liveTvSettingsForm').addEventListener('submit', onSubmit);
+    view.addEventListener('viewshow', function () {
+        loading.show();
+        const page = this;
+        ApiClient.getNamedConfiguration('livetv').then(function (config) {
+            loadPage(page, config);
+        });
     });
-});
+}
+
