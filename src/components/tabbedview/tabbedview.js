@@ -30,7 +30,7 @@ class TabbedView {
         this.params = params;
 
         const self = this;
-
+        console.log('view', view);
         let currentTabIndex = parseInt(params.tab || this.getDefaultTabIndex(params.parentId));
         this.initialTabIndex = currentTabIndex;
 

@@ -1,3 +1,5 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { appHost } from './apphost';
 import appSettings from '../scripts/settings/appSettings';
 import backdrop from './backdrop/backdrop';
@@ -373,7 +375,10 @@ class AppRouter {
         };
 
         if (route.pageComponent) {
-            onInitComplete(reactControllerFactory);
+            import('./pages/' + route.pageComponent).then(({ default: component }) => {
+                this.sendRouteToViewManagerc(ctx, next, route, component);
+            });
+            //onInitComplete(reactControllerFactory);
         } else if (route.controller) {
             import('../controllers/' + route.controller).then(onInitComplete);
         } else {
@@ -386,6 +391,56 @@ class AppRouter {
         if (currentRequest) {
             currentRequest.cancel = true;
         }
+    }
+
+    sendRouteToViewManagerc(ctx, next, route, component) {
+        if (this.isDummyBackToHome && route.type === 'home') {
+            this.isDummyBackToHome = false;
+            return;
+        }
+
+        this.cancelCurrentLoadRequest();
+        const isBackNav = ctx.isBack;
+
+        const currentRequest = {
+            url: this.baseUrl() + ctx.path,
+            transition: route.transition,
+            isBack: isBackNav,
+            state: ctx.state,
+            type: route.type,
+            fullscreen: route.fullscreen,
+            component: component,
+            options: {
+                //pageComponent: route.pageComponent,
+                supportsThemeMedia: route.supportsThemeMedia || false,
+                enableMediaControl: route.enableMediaControl !== false
+            },
+            autoFocus: route.autoFocus
+        };
+        this.currentViewLoadRequest = currentRequest;
+
+        const onNewViewNeeded = () => {
+            if (typeof route.path === 'string') {
+                this.loadContentUrl(ctx, next, route, currentRequest);
+            } else {
+                next();
+            }
+        };
+
+        if (!isBackNav) {
+            onNewViewNeeded();
+            return;
+        }
+        viewManager.tryRestoreView(currentRequest, () => {
+            this.currentRouteInfo = {
+                route: route,
+                path: ctx.path
+            };
+        }).catch((result) => {
+            if (!result || !result.cancelled) {
+                onNewViewNeeded();
+            }
+        });
     }
 
     sendRouteToViewManager(ctx, next, route, controllerFactory) {
@@ -406,7 +461,7 @@ class AppRouter {
             fullscreen: route.fullscreen,
             controllerFactory: controllerFactory,
             options: {
-                pageComponent: route.pageComponent,
+                //pageComponent: route.pageComponent,
                 supportsThemeMedia: route.supportsThemeMedia || false,
                 enableMediaControl: route.enableMediaControl !== false
             },

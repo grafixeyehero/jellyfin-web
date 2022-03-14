@@ -370,7 +370,8 @@ import { appRouter } from '../components/appRouter';
         alias: '/movies.html',
         path: 'movies/movies.html',
         autoFocus: false,
-        controller: 'movies/moviesrecommended'
+        //controller: 'movies/moviestab'
+        pageComponent: 'MoviesTabPage'
     });
 
     defineRoute({

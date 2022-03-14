@@ -1,3 +1,5 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
 import viewContainer from '../viewContainer';
 import focusManager from '../focusManager';
 import layoutManager from '../layoutManager';
@@ -20,13 +22,15 @@ viewContainer.setOnBeforeChange(function (newView, isRestored, options) {
     if (!newView.initComplete) {
         newView.initComplete = true;
 
-        if (typeof options.controllerFactory === 'function') {
+        if (typeof options.component === 'function') {
+            ReactDOM.render(React.createElement(options.component, eventDetail.detail.params, eventDetail.detail.view), newView);
+        }else if (typeof options.controllerFactory === 'function') {
             new options.controllerFactory(newView, eventDetail.detail.params, eventDetail);
         } else if (options.controllerFactory && typeof options.controllerFactory.default === 'function') {
             new options.controllerFactory.default(newView, eventDetail.detail.params, eventDetail);
         }
 
-        if (!options.controllerFactory || dispatchPageEvents) {
+        if (!options.controllerFactory || !options.component || dispatchPageEvents) {
             dispatchViewEvent(newView, eventDetail, 'viewinit');
         }
     }
@@ -114,6 +118,7 @@ function getViewEventDetail(view, {state, url, options = {}}, isRestored) {
             params,
             isRestored,
             state,
+            view,
             // The route options
             options
         },

@@ -74,7 +74,8 @@ import ServerConnections from '../ServerConnections';
 
                 return Promise.all(promises).then(function () {
                     return resume(elem, {
-                        refresh: true
+                        refresh: true,
+                        returnPromise: false
                     });
                 });
             } else {
@@ -127,7 +128,13 @@ import ServerConnections from '../ServerConnections';
             promises.push(elems[i].resume(options));
         }
 
-        return Promise.all(promises);
+        const promise = Promise.all(promises);
+
+    if (options && options.returnPromise === false) {
+      return promises[0];
+    }
+
+    return promise;
     }
 
     function loadSection(page, apiClient, user, userSettings, userViews, allSections, index) {
