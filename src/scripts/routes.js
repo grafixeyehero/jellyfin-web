@@ -371,7 +371,7 @@ import { appRouter } from '../components/appRouter';
         path: 'movies/movies.html',
         autoFocus: false,
         //controller: 'movies/moviestab'
-        pageComponent: 'MoviesTabPage'
+        pageComponent: 'MoviesTabbedPage'
     });
 
     defineRoute({

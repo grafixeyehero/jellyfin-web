@@ -1,5 +1,4 @@
 import React, { Component, createRef } from 'react';
-import ReactDOM from 'react-dom';
 import { Event as EventObject, Events } from 'jellyfin-apiclient';
 import globalize from '../../scripts/globalize';
 import * as mainTabsManager from '../maintabsmanager';
@@ -40,13 +39,32 @@ export class MoviesTabPage extends Component <IProps, IState> {
         this.onTabChange = this.onTabChange.bind(this);
         this.onPlaybackStop = this.onPlaybackStop.bind(this);
         this.onViewShow = this.onViewShow.bind(this);
-        this.onViewDestroy = this.onViewDestroy.bind(this);
     }
 
     componentDidMount() {
-        document.addEventListener('viewshow', () => this.onViewShow());
+        const page = this.ref.current as HTMLDivElement;
 
+        if (!page) {
+            console.error('Unexpected null reference');
+            return;
+        }
+        this.initTabs();
 
+        if (!page.getAttribute('data-title')) {
+            const parentId = this.props.topParentId;
+
+            if (parentId) {
+                window.ApiClient.getItem(window.ApiClient.getCurrentUserId(), parentId).then(function (item) {
+                    page.setAttribute('data-title', item.Name as string);
+                    libraryMenu.setTitle(item.Name);
+                });
+            } else {
+                page.setAttribute('data-title', globalize.translate('Movies'));
+                libraryMenu.setTitle(globalize.translate('Movies'));
+            }
+        }
+
+        Events.on(playbackManager, 'playbackstop', this.onPlaybackStop);
     }
 
     onViewShow() {
@@ -74,16 +92,6 @@ export class MoviesTabPage extends Component <IProps, IState> {
 
         Events.on(playbackManager, 'playbackstop', this.onPlaybackStop);
     }
-
-    onViewDestroy() {
-        const tabControllers = this.tabControllers;
-
-        tabControllers.forEach(function (t: { destroy: () => void; }) {
-            if (t.destroy) {
-                t.destroy();
-            }
-        });
-    }
     /*componentDidUpdate() {
         const page = this.ref.current as HTMLDivElement;
 
@@ -110,15 +118,13 @@ export class MoviesTabPage extends Component <IProps, IState> {
     }*/
 
     componentWillUnmount() {
-        document.addEventListener('viewdestroy', () => this.onViewDestroy());
-        /*document.addEventListener('viewdestroy', () => {
-            ReactDOM.unmountComponentAtNode(document);
-        });*/
-        //document.addEventListener('viewdestroy', this.onViewDestroy.bind(this));
         //document.removeEventListener('viewshow', () => this.onViewShow());
-        //document.removeEventListener('viewdestroy', () => this.onViewDestroy());
-
-        //Events.off(playbackManager, 'playbackstop', this.onPlaybackStop);
+        Events.off(playbackManager, 'playbackstop', this.onPlaybackStop);
+        /*this.tabControllers.forEach(function (t: { destroy: () => void; }) {
+            if (t.destroy) {
+                t.destroy();
+            }
+        });*/
     }
 
     initTabs() {
