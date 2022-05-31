@@ -1,4 +1,4 @@
-import { appRouter } from '../appRouter';
+import { history } from '../appRouter';
 import focusManager from '../focusManager';
 import browser from '../../scripts/browser';
 import layoutManager from '../layoutManager';
@@ -39,7 +39,7 @@ import '../../assets/css/scrollstyles.scss';
             try {
                 parentNode.removeChild(elem);
             } catch (err) {
-                console.error('error removing dialog element: ' + err);
+                console.error('[dialogHelper] error removing dialog element: ' + err);
             }
         }
     }
@@ -49,26 +49,26 @@ import '../../assets/css/scrollstyles.scss';
         self.originalUrl = window.location.href;
         const activeElement = document.activeElement;
         let removeScrollLockOnClose = false;
+        let unlisten;
 
-        function onHashChange() {
-            const isBack = self.originalUrl === window.location.href;
+        function onHashChange({ location }) {
+            const dialogs = location.state?.dialogs || [];
+            const shouldClose = !dialogs.includes(hash);
 
-            if (isBack || !isOpened(dlg)) {
-                window.removeEventListener('popstate', onHashChange);
+            if ((shouldClose || !isOpened(dlg)) && unlisten) {
+                unlisten();
             }
 
-            if (isBack) {
-                self.closedByBack = true;
-                closeDialog(dlg);
+            if (shouldClose) {
+                close(dlg);
             }
         }
 
         function onBackCommand(e) {
             if (e.detail.command === 'back') {
-                self.closedByBack = true;
                 e.preventDefault();
                 e.stopPropagation();
-                closeDialog(dlg);
+                close(dlg);
             }
         }
 
@@ -77,7 +77,9 @@ import '../../assets/css/scrollstyles.scss';
                 inputManager.off(dlg, onBackCommand);
             }
 
-            window.removeEventListener('popstate', onHashChange);
+            if (unlisten) {
+                unlisten();
+            }
 
             removeBackdrop(dlg);
             dlg.classList.remove('opened');
@@ -86,10 +88,14 @@ import '../../assets/css/scrollstyles.scss';
                 document.body.classList.remove('noScroll');
             }
 
-            if (!self.closedByBack && isHistoryEnabled(dlg)) {
-                const state = window.history.state || {};
-                if (state.dialogId === hash) {
-                    appRouter.back();
+            if (isHistoryEnabled(dlg)) {
+                const state = history.location.state || {};
+                if (state.dialogs?.length > 0) {
+                    if (state.dialogs[state.dialogs.length - 1] === hash) {
+                        history.back();
+                    } else if (state.dialogs.includes(hash)) {
+                        console.info('[dialogHelper] dialog "%s" was closed, but is not the last dialog opened', hash);
+                    }
                 }
             }
 
@@ -113,8 +119,7 @@ import '../../assets/css/scrollstyles.scss';
             // if we just called history.back(), then use a timeout to allow the history events to fire first
             setTimeout(() => {
                 resolve({
-                    element: dlg,
-                    closedByBack: self.closedByBack
+                    element: dlg
                 });
             }, 1);
         }
@@ -144,9 +149,20 @@ import '../../assets/css/scrollstyles.scss';
         animateDialogOpen(dlg);
 
         if (isHistoryEnabled(dlg)) {
-            appRouter.show(`/dialog?dlg=${hash}`, { dialogId: hash });
+            const state = history.location.state || {};
+            const dialogs = state.dialogs || [];
+            // Add new dialog to the list of open dialogs
+            dialogs.push(hash);
 
-            window.addEventListener('popstate', onHashChange);
+            history.push(
+                `${history.location.pathname}${history.location.search}`,
+                {
+                    ...state,
+                    dialogs
+                }
+            );
+
+            unlisten = history.listen(onHashChange);
         } else {
             inputManager.on(dlg, onBackCommand);
         }
@@ -213,16 +229,6 @@ import '../../assets/css/scrollstyles.scss';
     }
 
     export function close(dlg) {
-        if (isOpened(dlg)) {
-            if (isHistoryEnabled(dlg)) {
-                appRouter.back();
-            } else {
-                closeDialog(dlg);
-            }
-        }
-    }
-
-    function closeDialog(dlg) {
         if (!dlg.classList.contains('hide')) {
             dlg.dispatchEvent(new CustomEvent('closing', {
                 bubbles: false,
@@ -348,7 +354,7 @@ import '../../assets/css/scrollstyles.scss';
         if (enableAnimation()) {
             backdrop.classList.remove('dialogBackdropOpened');
 
-            // this is not firing animatonend
+            // this is not firing animationend
             setTimeout(onAnimationFinish, 300);
             return;
         }

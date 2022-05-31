@@ -1087,8 +1087,10 @@ import template from './metadataEditor.template.html';
     }
 
     export default {
-        show: function (itemId, serverId) {
-            return new Promise(function (resolve) {
+        show: async function (itemId, serverId) {
+            const apiClient = ServerConnections.getApiClient(serverId);
+            await apiClient.getItem(apiClient.getCurrentUserId(), itemId);
+            return await new Promise(function (resolve) {
                 return show(itemId, serverId, resolve);
             });
         },
