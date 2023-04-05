@@ -1,5 +1,4 @@
-import React, { FunctionComponent, HTMLAttributes, useEffect, useRef } from 'react';
-
+import React, { FC, HTMLAttributes, useEffect, useRef } from 'react';
 import viewManager from './viewManager/viewManager';
 
 type PageProps = {
@@ -9,14 +8,15 @@ type PageProps = {
     isMenuButtonEnabled?: boolean,
     isNowPlayingBarEnabled?: boolean,
     isThemeMediaSupported?: boolean,
-    backDropType?: string
+    backDropType?: string,
+    topParentId?: string | null
 };
 
 /**
  * Page component that handles hiding active non-react views, triggering the required events for
  * navigation and appRouter state updates, and setting the correct classes and data attributes.
  */
-const Page: FunctionComponent<PageProps & HTMLAttributes<HTMLDivElement>> = ({
+const Page: FC<PageProps & HTMLAttributes<HTMLDivElement>> = ({
     children,
     id,
     className = '',
@@ -25,10 +25,10 @@ const Page: FunctionComponent<PageProps & HTMLAttributes<HTMLDivElement>> = ({
     isMenuButtonEnabled = false,
     isNowPlayingBarEnabled = true,
     isThemeMediaSupported = false,
-    backDropType
+    backDropType,
+    topParentId
 }) => {
     const element = useRef<HTMLDivElement>(null);
-
     useEffect(() => {
         // hide active non-react views
         viewManager.hideView();
@@ -54,7 +54,7 @@ const Page: FunctionComponent<PageProps & HTMLAttributes<HTMLDivElement>> = ({
         element.current?.dispatchEvent(new CustomEvent('viewshow', event));
         // pageshow - updates header/navigation in libraryMenu
         element.current?.dispatchEvent(new CustomEvent('pageshow', event));
-    }, [ element, isNowPlayingBarEnabled, isThemeMediaSupported ]);
+    }, [element, isNowPlayingBarEnabled, isThemeMediaSupported, topParentId]);
 
     return (
         <div
@@ -66,6 +66,7 @@ const Page: FunctionComponent<PageProps & HTMLAttributes<HTMLDivElement>> = ({
             data-backbutton={isBackButtonEnabled}
             data-menubutton={isMenuButtonEnabled}
             data-backdroptype={backDropType}
+            style={{ position: 'relative' }}
         >
             {children}
         </div>

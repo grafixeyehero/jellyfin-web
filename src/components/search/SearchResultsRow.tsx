@@ -1,5 +1,5 @@
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client';
-import React, { FunctionComponent, useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 
 import cardBuilder from '../cardbuilder/cardBuilder';
 
@@ -43,7 +43,7 @@ type SearchResultsRowProps = {
     cardOptions?: CardOptions;
 }
 
-const SearchResultsRow: FunctionComponent<SearchResultsRowProps> = ({ title, items = [], cardOptions = {} }: SearchResultsRowProps) => {
+const SearchResultsRow: FC<SearchResultsRowProps> = ({ title, items = [], cardOptions = {} }) => {
     const element = useRef<HTMLDivElement>(null);
 
     useEffect(() => {

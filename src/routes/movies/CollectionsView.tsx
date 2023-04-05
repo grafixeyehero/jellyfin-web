@@ -1,30 +1,21 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC } from 'react';
+
+import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
 
 import ViewItemsContainer from '../../components/common/ViewItemsContainer';
 import { LibraryViewProps } from '../../types/interface';
 
-const CollectionsView: FC<LibraryViewProps> = ({ topParentId }) => {
-    const getBasekey = useCallback(() => {
-        return 'collections';
-    }, []);
-
-    const getItemTypes = useCallback(() => {
-        return ['BoxSet'];
-    }, []);
-
-    const getNoItemsMessage = useCallback(() => {
-        return 'MessageNoCollectionsAvailable';
-    }, []);
-
+const CollectionsView: FC<LibraryViewProps> = ({ topParentId, context }) => {
     return (
         <ViewItemsContainer
-            topParentId={topParentId}
+            viewType='collections'
+            parentId={topParentId}
+            context={context}
             isBtnFilterEnabled={false}
             isBtnNewCollectionEnabled={true}
             isAlphaPickerEnabled={false}
-            getBasekey={getBasekey}
-            getItemTypes={getItemTypes}
-            getNoItemsMessage={getNoItemsMessage}
+            itemType={[BaseItemKind.BoxSet]}
+            noItemsMessage='MessageNoCollectionsAvailable'
         />
     );
 };

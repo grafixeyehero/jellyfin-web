@@ -1,60 +1,71 @@
-import '../../elements/emby-itemscontainer/emby-itemscontainer';
-
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client';
 import React, { FC, useEffect, useRef } from 'react';
 
 import cardBuilder from '../cardbuilder/cardBuilder';
 import ItemsContainerElement from '../../elements/ItemsContainerElement';
-import ItemsScrollerContainerElement from '../../elements/ItemsScrollerContainerElement';
+import Scroller from '../../elements/emby-scroller/Scroller';
 import { CardOptions } from '../../types/interface';
+import LinkButton from '../../elements/emby-button/LinkButton';
+import imageLoader from '../images/imageLoader';
 
 interface SectionContainerProps {
+    url?: string;
     sectionTitle: string;
-    enableScrollX: () => boolean;
-    items?: BaseItemDto[];
-    cardOptions?: CardOptions;
+    items: BaseItemDto[];
+    cardOptions: CardOptions;
 }
 
 const SectionContainer: FC<SectionContainerProps> = ({
     sectionTitle,
-    enableScrollX,
-    items = [],
-    cardOptions = {}
+    url,
+    items,
+    cardOptions
 }) => {
     const element = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        const itemsContainer =
+            element.current?.querySelector('.itemsContainer');
         cardBuilder.buildCards(items, {
-            itemsContainer: element.current?.querySelector('.itemsContainer'),
-            parentContainer: element.current?.querySelector('.verticalSection'),
-            scalable: true,
-            overlayPlayButton: true,
-            showTitle: true,
-            centerText: true,
-            cardLayout: false,
+            itemsContainer: itemsContainer,
+            parentContainer: element.current,
+
             ...cardOptions
         });
-    }, [cardOptions, enableScrollX, items]);
+
+        imageLoader.lazyChildren(itemsContainer);
+    }, [cardOptions, items]);
 
     return (
-        <div ref={element}>
-            <div className='verticalSection hide'>
-                <div className='sectionTitleContainer sectionTitleContainer-cards'>
-                    <h2 className='sectionTitle sectionTitle-cards padded-left'>
+        <div ref={element} className='verticalSection hide'>
+            <div className='sectionTitleContainer sectionTitleContainer-cards padded-left'>
+                {url && items.length > 5 ? (
+                    <LinkButton
+                        className='more button-flat button-flat-mini sectionTitleTextButton btnMoreFromGenre'
+                        href={url}
+                    >
+                        <h2 className='sectionTitle sectionTitle-cards'>
+                            {sectionTitle}
+                        </h2>
+                        <span
+                            className='material-icons chevron_right'
+                            aria-hidden='true'
+                        ></span>
+                    </LinkButton>
+                ) : (
+                    <h2 className='sectionTitle sectionTitle-cards'>
                         {sectionTitle}
                     </h2>
-                </div>
-
-                {enableScrollX() ? <ItemsScrollerContainerElement
-                    scrollerclassName='padded-top-focusscale padded-bottom-focusscale'
-                    dataMousewheel='false'
-                    dataCenterfocus='true'
-                    className='itemsContainer scrollSlider focuscontainer-x'
-                /> : <ItemsContainerElement
-                    className='itemsContainer focuscontainer-x padded-left padded-right vertical-wrap'
-                />}
-
+                )}
             </div>
+
+            <Scroller
+                className='padded-top-focusscale padded-bottom-focusscale'
+                isMouseWheelEnabled={false}
+                isCenterFocusEnabled={true}
+            >
+                <ItemsContainerElement className='itemsContainer scrollSlider focuscontainer-x lazy' />
+            </Scroller>
         </div>
     );
 };

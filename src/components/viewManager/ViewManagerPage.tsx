@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import globalize from '../../scripts/globalize';
@@ -18,7 +18,7 @@ export interface ViewManagerPageProps {
  * Page component that renders legacy views via the ViewManager.
  * NOTE: Any new pages should use the generic Page component instead.
  */
-const ViewManagerPage: FunctionComponent<ViewManagerPageProps> = ({
+const ViewManagerPage: FC<ViewManagerPageProps> = ({
     controller,
     view,
     type,

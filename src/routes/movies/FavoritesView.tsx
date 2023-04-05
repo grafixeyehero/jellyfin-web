@@ -1,27 +1,17 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC } from 'react';
+
+import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
 
 import ViewItemsContainer from '../../components/common/ViewItemsContainer';
 import { LibraryViewProps } from '../../types/interface';
 
 const FavoritesView: FC<LibraryViewProps> = ({ topParentId }) => {
-    const getBasekey = useCallback(() => {
-        return 'favorites';
-    }, []);
-
-    const getItemTypes = useCallback(() => {
-        return ['Movie'];
-    }, []);
-
-    const getNoItemsMessage = useCallback(() => {
-        return 'MessageNoFavoritesAvailable';
-    }, []);
-
     return (
         <ViewItemsContainer
-            topParentId={topParentId}
-            getBasekey={getBasekey}
-            getItemTypes={getItemTypes}
-            getNoItemsMessage={getNoItemsMessage}
+            viewType='favorites'
+            parentId={topParentId}
+            itemType={[BaseItemKind.Movie]}
+            noItemsMessage='MessageNoFavoritesAvailable'
         />
     );
 };

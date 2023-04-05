@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import type { ConnectResponse } from 'jellyfin-apiclient';
 
@@ -8,6 +8,8 @@ import Loading from './loading/LoadingComponent';
 import ServerConnections from './ServerConnections';
 import globalize from '../scripts/globalize';
 import { ConnectionState } from '../utils/jellyfin-apiclient/ConnectionState';
+import { useThemeConfig } from '../hooks/useThemeConfig';
+import { getMUIThemeMode } from '../utils/items';
 
 enum BounceRoutes {
     Home = '/home.html',
@@ -26,12 +28,13 @@ type ConnectionRequiredProps = {
  * Additional parameters exist to verify a user or admin have authenticated.
  * If a condition fails, this component will navigate to the appropriate page.
  */
-const ConnectionRequired: FunctionComponent<ConnectionRequiredProps> = ({
+const ConnectionRequired: FC<ConnectionRequiredProps> = ({
     isAdminRequired = false,
     isUserRequired = true
 }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { setMode } = useThemeConfig();
 
     const [ isLoading, setIsLoading ] = useState(true);
 
@@ -144,7 +147,12 @@ const ConnectionRequired: FunctionComponent<ConnectionRequiredProps> = ({
         };
 
         validateConnection();
-    }, [ isAdminRequired, isUserRequired, location.pathname, navigate ]);
+
+        //  Todo - remove when migration MUI complete
+        //  set MUI-ThemeMode - switches between dark and light themes based on user themes change
+        const currentMode = getMUIThemeMode(isAdminRequired);
+        setMode(currentMode);
+    }, [isAdminRequired, isUserRequired, location.pathname, navigate, setMode]);
 
     if (isLoading) {
         return <Loading />;

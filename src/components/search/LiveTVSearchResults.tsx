@@ -1,7 +1,7 @@
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client';
 import type { ApiClient } from 'jellyfin-apiclient';
 import classNames from 'classnames';
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import globalize from '../../scripts/globalize';
 import ServerConnections from '../ServerConnections';
@@ -29,7 +29,7 @@ type LiveTVSearchResultsProps = {
 /*
  * React component to display search result rows for live tv library search
  */
-const LiveTVSearchResults: FunctionComponent<LiveTVSearchResultsProps> = ({ serverId = window.ApiClient.serverId(), parentId, collectionType, query }: LiveTVSearchResultsProps) => {
+const LiveTVSearchResults: FC<LiveTVSearchResultsProps> = ({ serverId = window.ApiClient.serverId(), parentId, collectionType, query }) => {
     const [ movies, setMovies ] = useState<BaseItemDto[]>([]);
     const [ episodes, setEpisodes ] = useState<BaseItemDto[]>([]);
     const [ sports, setSports ] = useState<BaseItemDto[]>([]);

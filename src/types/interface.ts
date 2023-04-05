@@ -1,46 +1,65 @@
 import type { BaseItemDto } from '@jellyfin/sdk/lib/generated-client';
+import { ItemFields } from '@jellyfin/sdk/lib/generated-client/models/item-fields';
+import { ItemFilter } from '@jellyfin/sdk/lib/generated-client/models/item-filter';
+import { VideoType } from '@jellyfin/sdk/lib/generated-client/models/video-type';
+import { ImageType } from '@jellyfin/sdk/lib/generated-client/models/image-type';
+import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
+import { ItemSortBy } from '@jellyfin/sdk/lib/models/api/item-sort-by';
+import { SortOrder } from '@jellyfin/sdk/lib/generated-client/models/sort-order';
+import { SeriesStatus } from '@jellyfin/sdk/lib/generated-client/models/series-status';
 
-export interface Query extends ViewQuerySettings {
-    IncludeItemTypes?: string;
-    Recursive?: boolean;
-    Fields?: string | null;
-    ImageTypeLimit?: number;
-    EnableTotalRecordCount?: boolean;
-    EnableImageTypes?: string;
-    StartIndex?: number;
-    ParentId?: string | null;
-    IsMissing?: boolean | null;
-    Limit?:number;
-    Filters?: string | null;
+export interface ParametersOptions {
+    sortBy?: ItemSortBy[];
+    sortOrder?: SortOrder[];
+    includeItemTypes?: BaseItemKind[];
+    fields?: ItemFields[];
+    enableImageTypes?: ImageType[];
+    videoTypes?: VideoType[];
+    seriesStatus?: SeriesStatus[];
+    filters?: ItemFilter[];
+    limit?: number;
+    isFavorite?: boolean;
+    genres?: string[];
+    officialRatings?: string[];
+    tags?: string[];
+    years?: number[];
+    is4K?: boolean;
+    isHd?: boolean;
+    is3D?: boolean;
+    hasSubtitles?: boolean;
+    hasTrailer?: boolean;
+    hasSpecialFeature?: boolean;
+    hasThemeSong?: boolean;
+    hasThemeVideo?: boolean;
+    parentIndexNumber?: number;
+    isMissing?: boolean;
+    isUnaired?: boolean;
+    startIndex?: number;
+    nameLessThan?: string;
+    nameStartsWith?: string;
+    collapseBoxSetItems?: boolean;
+    enableTotalRecordCount?: boolean;
 }
 
-export interface ViewQuerySettings {
+export interface ViewUserSettings {
     showTitle?: boolean;
     showYear?: boolean;
     imageType?: string;
-    viewType?: string;
     cardLayout?: boolean;
-    SortBy?: string | null;
-    SortOrder?: string | null;
-    IsPlayed?: boolean | null;
-    IsUnplayed?: boolean | null;
-    IsFavorite?: boolean | null;
-    IsResumable?: boolean | null;
-    Is4K?: boolean | null;
-    IsHD?: boolean | null;
-    IsSD?: boolean | null;
-    Is3D?: boolean | null;
-    VideoTypes?: string | null;
-    SeriesStatus?: string | null;
-    HasSubtitles?: boolean | null;
-    HasTrailer?: boolean | null;
-    HasSpecialFeature?: boolean | null;
-    ParentIndexNumber?: boolean | null;
-    HasThemeSong?: boolean | null;
-    HasThemeVideo?: boolean | null;
-    GenreIds?: string | null;
-    NameLessThan?: string | null;
-    NameStartsWith?: string | null;
+    SortBy?: string;
+    SortOrder?: string;
+    filtersFeatures?: string[];
+    filtersGenres?: string[];
+    filtersOfficialRatings?: string[];
+    filtersTags?: string[];
+    filtersYears?: number[];
+    filtersVideoTypes?: string[];
+    filtersStatus?: string[];
+    filtersSeriesStatus?: string[];
+    filtersStudios?: string[];
+    filtersStudioIds?: string[];
+    NameLessThan?: string;
+    NameStartsWith?: string;
     StartIndex?: number;
 }
 
@@ -118,5 +137,15 @@ export interface CardOptions {
 }
 
 export interface LibraryViewProps {
-    topParentId: string | null;
+    topParentId?: string | null;
+    context?: string | null;
+}
+
+export interface Sections {
+    name: string;
+    id: string;
+    type: string;
+    viewType?: string,
+    parametersOptions?: ParametersOptions;
+    cardOptions: CardOptions;
 }

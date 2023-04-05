@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import ServerConnections from './ServerConnections';
@@ -13,7 +13,7 @@ interface ServerContentPageProps {
  * Page component that renders html content from a server request.
  * Uses the ViewManager to dynamically load and execute the page JS.
  */
-const ServerContentPage: FunctionComponent<ServerContentPageProps> = ({ view }) => {
+const ServerContentPage: FC<ServerContentPageProps> = ({ view }) => {
     const location = useLocation();
 
     useEffect(() => {

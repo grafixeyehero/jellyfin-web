@@ -6,43 +6,56 @@ import escapeHTML from 'escape-html';
 import SectionContainer from './SectionContainer';
 
 interface RecommendationContainerProps {
-    getPortraitShape: () => string;
-    enableScrollX: () => boolean;
     recommendation?: RecommendationDto;
 }
 
-const RecommendationContainer: FC<RecommendationContainerProps> = ({ getPortraitShape, enableScrollX, recommendation = {} }) => {
+const RecommendationContainer: FC<RecommendationContainerProps> = ({
+    recommendation = {}
+}) => {
     let title = '';
 
     switch (recommendation.RecommendationType) {
         case 'SimilarToRecentlyPlayed':
-            title = globalize.translate('RecommendationBecauseYouWatched', recommendation.BaselineItemName);
+            title = globalize.translate(
+                'RecommendationBecauseYouWatched',
+                recommendation.BaselineItemName
+            );
             break;
 
         case 'SimilarToLikedItem':
-            title = globalize.translate('RecommendationBecauseYouLike', recommendation.BaselineItemName);
+            title = globalize.translate(
+                'RecommendationBecauseYouLike',
+                recommendation.BaselineItemName
+            );
             break;
 
         case 'HasDirectorFromRecentlyPlayed':
         case 'HasLikedDirector':
-            title = globalize.translate('RecommendationDirectedBy', recommendation.BaselineItemName);
+            title = globalize.translate(
+                'RecommendationDirectedBy',
+                recommendation.BaselineItemName
+            );
             break;
 
         case 'HasActorFromRecentlyPlayed':
         case 'HasLikedActor':
-            title = globalize.translate('RecommendationStarring', recommendation.BaselineItemName);
+            title = globalize.translate(
+                'RecommendationStarring',
+                recommendation.BaselineItemName
+            );
             break;
     }
 
-    return <SectionContainer
-        sectionTitle={escapeHTML(title)}
-        enableScrollX={enableScrollX}
-        items={recommendation.Items || []}
-        cardOptions={{
-            shape: getPortraitShape(),
-            showYear: true
-        }}
-    />;
+    return (
+        <SectionContainer
+            sectionTitle={escapeHTML(title)}
+            items={recommendation.Items || []}
+            cardOptions={{
+                shape: 'overflowPortrait',
+                showYear: true
+            }}
+        />
+    );
 };
 
 export default RecommendationContainer;
