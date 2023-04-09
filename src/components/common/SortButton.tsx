@@ -21,46 +21,16 @@ interface SortButtonProps {
 }
 
 const sortMenuOptions = [
-    {
-        label: globalize.translate('Name'),
-        value: 'SortName'
-    },
-    {
-        label: globalize.translate('OptionRandom'),
-        value: 'Random'
-    },
-    {
-        label: globalize.translate('OptionImdbRating'),
-        value: 'CommunityRating'
-    },
-    {
-        label: globalize.translate('OptionCriticRating'),
-        value: 'CriticRating'
-    },
-    {
-        label: globalize.translate('OptionDateAdded'),
-        value: 'DateCreated'
-    },
-    {
-        label: globalize.translate('OptionDatePlayed'),
-        value: 'DatePlayed'
-    },
-    {
-        label: globalize.translate('OptionParentalRating'),
-        value: 'OfficialRating'
-    },
-    {
-        label: globalize.translate('OptionPlayCount'),
-        value: 'PlayCount'
-    },
-    {
-        label: globalize.translate('OptionReleaseDate'),
-        value: 'PremiereDate'
-    },
-    {
-        label: globalize.translate('Runtime'),
-        value: 'Runtime'
-    }
+    { label: 'Name', value: 'SortName' },
+    { label: 'OptionRandom', value: 'Random' },
+    { label: 'OptionImdbRating', value: 'CommunityRating' },
+    { label: 'OptionCriticRating', value: 'CriticRating' },
+    { label: 'OptionDateAdded', value: 'DateCreated' },
+    { label: 'OptionDatePlayed', value: 'DatePlayed' },
+    { label: 'OptionParentalRating', value: 'OfficialRating' },
+    { label: 'OptionPlayCount', value: 'PlayCount' },
+    { label: 'OptionReleaseDate', value: 'PremiereDate' },
+    { label: 'Runtime', value: 'Runtime' }
 ];
 
 const sortOrderMenuOptions = [
@@ -144,7 +114,7 @@ const SortButton: FC<SortButtonProps> = ({
                                         value={option.value}
                                     >
                                         <Typography component='span'>
-                                            {option.label}
+                                            {globalize.translate(option.label)}
                                         </Typography>
                                     </MenuItem>
                                 ))}

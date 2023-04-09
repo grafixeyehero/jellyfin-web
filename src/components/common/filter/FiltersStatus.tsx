@@ -12,34 +12,13 @@ interface FiltersStatusProps {
 }
 
 const statusFiltersOptions = [
-    {
-        label: globalize.translate('Played'),
-        value: 'IsPlayed'
-    },
-    {
-        label: globalize.translate('Unplayed'),
-        value: 'IsUnplayed'
-    },
-    {
-        label: globalize.translate('Favorite'),
-        value: 'IsFavorite'
-    },
-    {
-        label: globalize.translate('ContinueWatching'),
-        value: 'IsResumable'
-    },
-    {
-        label: globalize.translate('OptionSpecialEpisode'),
-        value: 'ParentIndexNumber'
-    },
-    {
-        label: globalize.translate('OptionMissingEpisode'),
-        value: 'IsMissing'
-    },
-    {
-        label: globalize.translate('OptionUnairedEpisode'),
-        value: 'IsUnaired'
-    }
+    { label: 'Played', value: 'IsPlayed' },
+    { label: 'Unplayed', value: 'IsUnplayed' },
+    { label: 'Favorite', value: 'IsFavorite' },
+    { label: 'ContinueWatching', value: 'IsResumable' },
+    { label: 'OptionSpecialEpisode', value: 'ParentIndexNumber' },
+    { label: 'OptionMissingEpisode', value: 'IsMissing' },
+    { label: 'OptionUnairedEpisode', value: 'IsUnaired' }
 ];
 
 const FiltersStatus: FC<FiltersStatusProps> = ({
@@ -96,7 +75,7 @@ const FiltersStatus: FC<FiltersStatusProps> = ({
                                     value={String(filter.value)}
                                 />
                             }
-                            label={filter.label}
+                            label={globalize.translate(filter.label)}
                         />
                     ))}
             </FormGroup>

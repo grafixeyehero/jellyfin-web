@@ -16,122 +16,51 @@ const getTabs = (type: string) => {
     switch (type) {
         case 'movies':
             return [
-                {
-                    index: 0,
-                    name: globalize.translate('Movies')
-                },
-                {
-                    index: 1,
-                    name: globalize.translate('Suggestions')
-                },
-                {
-                    index: 2,
-                    name: globalize.translate('Trailers')
-                },
-                {
-                    index: 3,
-                    name: globalize.translate('Favorites')
-                },
-                {
-                    index: 4,
-                    name: globalize.translate('Collections')
-                },
-                {
-                    index: 5,
-                    name: globalize.translate('Genres')
-                }
+                { index: 0, name: 'Movies' },
+                { index: 1, name: 'Suggestions' },
+                { index: 2, name: 'Trailers' },
+                { index: 3, name: 'Favorites' },
+                { index: 4, name: 'Collections' },
+                { index: 5, name: 'Genres' }
             ];
         case 'music':
             return [
-                {
-                    index: 0,
-                    name: globalize.translate('Albums')
-                },
-                {
-                    index: 1,
-                    name: globalize.translate('Suggestions')
-                },
-                {
-                    index: 2,
-                    name: globalize.translate('HeaderAlbumArtists')
-                },
-                {
-                    index: 3,
-                    name: globalize.translate('Artists')
-                },
-                {
-                    index: 4,
-                    name: globalize.translate('Favorites')
-                },
-                {
-                    index: 5,
-                    name: globalize.translate('Playlists')
-                },
-                {
-                    index: 6,
-                    name: globalize.translate('Songs')
-                },
-                {
-                    index: 7,
-                    name: globalize.translate('Genres')
-                }
+                { index: 0, name: 'Albums' },
+                { index: 1, name: 'Suggestions' },
+                { index: 2, name: 'HeaderAlbumArtists' },
+                { index: 3, name: 'Artists' },
+                { index: 4, name: 'Favorites' },
+                { index: 5, name: 'Playlists' },
+                { index: 6, name: 'Songs' },
+                { index: 7, name: 'Genres' }
             ];
         case 'tvshows':
             return [
-                {
-                    index: 0,
-                    name: globalize.translate('Shows')
-                },
-                {
-                    index: 1,
-                    name: globalize.translate('Suggestions')
-                },
-                {
-                    index: 2,
-                    name: globalize.translate('TabUpcoming')
-                },
-                {
-                    index: 3,
-                    name: globalize.translate('Favorites')
-                },
-                {
-                    index: 4,
-                    name: globalize.translate('Genres')
-                },
-                {
-                    index: 5,
-                    name: globalize.translate('TabNetworks')
-                },
-                {
-                    index: 6,
-                    name: globalize.translate('Episodes')
-                }
+                { index: 0, name: 'Shows' },
+                { index: 1, name: 'Suggestions' },
+                { index: 2, name: 'TabUpcoming' },
+                { index: 3, name: 'Favorites' },
+                { index: 4, name: 'Genres' },
+                { index: 5, name: 'TabNetworks' },
+                { index: 6, name: 'Episodes' }
             ];
         case 'userprofile':
             return [
-                {
-                    index: 0,
-                    name: globalize.translate('Profile')
-                },
-                {
-                    index: 1,
-                    name: globalize.translate('TabAccess')
-                },
-                {
-                    index: 2,
-                    name: globalize.translate('TabParentalControl')
-                },
-                {
-                    index: 3,
-                    name: globalize.translate('HeaderPassword')
-                }
+                { index: 0, name: 'Profile' },
+                { index: 1, name: 'TabAccess' },
+                { index: 2, name: 'TabParentalControl' },
+                { index: 3, name: 'HeaderPassword' }
             ];
         default:
             return [];
     }
 };
 
-const TabsComponent: FC<TabsComponentProps> = ({ selectedIndex, type, onChange }) => {
+const TabsComponent: FC<TabsComponentProps> = ({
+    selectedIndex,
+    type,
+    onChange
+}) => {
     const theme = useTheme();
 
     return (
@@ -169,7 +98,7 @@ const TabsComponent: FC<TabsComponentProps> = ({ selectedIndex, type, onChange }
                     <Tab
                         key={tab.index}
                         tabIndex={tab.index}
-                        label={tab.name}
+                        label={globalize.translate(tab.name)}
                         disableRipple
                     />
                 ))}

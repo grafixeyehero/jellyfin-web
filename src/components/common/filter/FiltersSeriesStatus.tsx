@@ -11,14 +11,8 @@ interface FiltersSeriesStatusProps {
 }
 
 const statusFiltersOptions = [
-    {
-        label: globalize.translate('Continuing'),
-        value: 'Continuing'
-    },
-    {
-        label: globalize.translate('Ended'),
-        value: 'Ended'
-    }
+    { label: 'Continuing', value: 'Continuing' },
+    { label: 'Ended', value: 'Ended' }
 ];
 
 const FiltersSeriesStatus: FC<FiltersSeriesStatusProps> = ({
@@ -69,7 +63,7 @@ const FiltersSeriesStatus: FC<FiltersSeriesStatusProps> = ({
                                 value={String(filter.value)}
                             />
                         }
-                        label={filter.label}
+                        label={globalize.translate(filter.label)}
                     />
                 ))}
             </FormGroup>

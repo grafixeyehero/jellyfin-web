@@ -426,7 +426,7 @@ import '../styles/flexstyles.scss';
             icon: 'settings'
         }, {
             name: globalize.translate('HeaderUsers'),
-            href: '#/userprofiles.html',
+            href: '#/userprofiles',
             pageIds: ['userProfilesPage', 'newUserPage', 'editUserPage', 'userLibraryAccessPage', 'userParentalControlPage', 'userPasswordPage'],
             icon: 'people'
         }, {

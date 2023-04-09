@@ -1,14 +1,18 @@
-import React, { FunctionComponent } from 'react';
+import type { AccessSchedule } from '@jellyfin/sdk/lib/generated-client';
+import React, { FC } from 'react';
+
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+
 import datetime from '../../../scripts/datetime';
 import globalize from '../../../scripts/globalize';
-import IconButtonElement from '../../../elements/IconButtonElement';
 
-type AccessScheduleListProps = {
+interface AccessScheduleListProps {
     index: number;
-    Id?: number;
-    DayOfWeek?: string;
-    StartHour?: number ;
-    EndHour?: number;
+    accessSchedule: AccessSchedule;
+    onDeleteScheduleClick: (index: number) => () => void;
 }
 
 function getDisplayTime(hours = 0) {
@@ -22,30 +26,34 @@ function getDisplayTime(hours = 0) {
     return datetime.getDisplayTime(new Date(2000, 1, 1, hours, minutes, 0, 0));
 }
 
-const AccessScheduleList: FunctionComponent<AccessScheduleListProps> = ({ index, DayOfWeek, StartHour, EndHour }: AccessScheduleListProps) => {
+const AccessScheduleList: FC<AccessScheduleListProps> = ({
+    index,
+    accessSchedule,
+    onDeleteScheduleClick
+}) => {
     return (
-        <div
-            className='liSchedule listItem'
-            data-day={ DayOfWeek}
-            data-start={ StartHour}
-            data-end={ EndHour}
+        <ListItem
+            secondaryAction={
+                <IconButton
+                    edge='end'
+                    aria-label='delete'
+                    title={globalize.translate('Delete')}
+                    className='paper-icon-button-light btnDelete listItemButton'
+                    onClick={onDeleteScheduleClick(index)}
+                >
+                    <DeleteIcon />
+                </IconButton>
+            }
         >
-            <div className='listItemBody two-line'>
-                <h3 className='listItemBodyText'>
-                    {globalize.translate(DayOfWeek)}
-                </h3>
-                <div className='listItemBodyText secondary'>
-                    {getDisplayTime(StartHour) + ' - ' + getDisplayTime(EndHour)}
-                </div>
-            </div>
-            <IconButtonElement
-                is='paper-icon-button-light'
-                className='btnDelete listItemButton'
-                title='Delete'
-                icon='delete'
-                dataIndex={index}
+            <ListItemText
+                primary={globalize.translate(accessSchedule.DayOfWeek)}
+                secondary={
+                    getDisplayTime(accessSchedule.StartHour)
+                    + ' - '
+                    + getDisplayTime(accessSchedule.EndHour)
+                }
             />
-        </div>
+        </ListItem>
     );
 };
 

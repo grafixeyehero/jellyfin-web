@@ -1,28 +1,34 @@
-import React, { FunctionComponent } from 'react';
-import IconButtonElement from '../../../elements/IconButtonElement';
+import React, { FC } from 'react';
 
-type IProps = {
-    tag?: string;
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+
+import globalize from '../../../scripts/globalize';
+
+interface BlockedTagListProps {
+    tag: string;
+    onDeleteTagClick: (tag: string) => () => void;
 }
 
-const BlockedTagList: FunctionComponent<IProps> = ({ tag }: IProps) => {
+const BlockedTagList: FC<BlockedTagListProps> = ({ tag, onDeleteTagClick }) => {
     return (
-        <div className='paperList'>
-            <div className='listItem'>
-                <div className='listItemBody'>
-                    <h3 className='listItemBodyText'>
-                        {tag}
-                    </h3>
-                </div>
-                <IconButtonElement
-                    is='paper-icon-button-light'
-                    className='blockedTag btnDeleteTag listItemButton'
-                    title='Delete'
-                    icon='delete'
-                    dataTag={tag}
-                />
-            </div>
-        </div>
+        <ListItem
+            secondaryAction={
+                <IconButton
+                    edge='end'
+                    aria-label='delete'
+                    title={globalize.translate('Delete')}
+                    className='paper-icon-button-light blockedTag btnDeleteTag listItemButton'
+                    onClick={onDeleteTagClick(tag)}
+                >
+                    <DeleteIcon />
+                </IconButton>
+            }
+        >
+            <ListItemText primary={tag} />
+        </ListItem>
     );
 };
 

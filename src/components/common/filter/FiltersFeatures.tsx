@@ -13,26 +13,11 @@ interface FiltersFeaturesProps {
 }
 
 const featureFiltersOptions = [
-    {
-        label: globalize.translate('Subtitles'),
-        value: 'HasSubtitles'
-    },
-    {
-        label: globalize.translate('Trailers'),
-        value: 'HasTrailer'
-    },
-    {
-        label: globalize.translate('Extras'),
-        value: 'HasSpecialFeature'
-    },
-    {
-        label: globalize.translate('ThemeSongs'),
-        value: 'HasThemeSong'
-    },
-    {
-        label: globalize.translate('ThemeVideos'),
-        value: 'HasThemeVideo'
-    }
+    { label: 'Subtitles', value: 'HasSubtitles' },
+    { label: 'Trailers', value: 'HasTrailer' },
+    { label: 'Extras', value: 'HasSpecialFeature' },
+    { label: 'ThemeSongs', value: 'HasThemeSong' },
+    { label: 'ThemeVideos', value: 'HasThemeVideo' }
 ];
 
 const FiltersFeatures: FC<FiltersFeaturesProps> = ({
@@ -88,7 +73,7 @@ const FiltersFeatures: FC<FiltersFeaturesProps> = ({
                                     value={String(filter.value)}
                                 />
                             }
-                            label={filter.label}
+                            label={globalize.translate(filter.label)}
                         />
                     ))}
             </FormGroup>
