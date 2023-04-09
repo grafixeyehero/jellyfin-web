@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FC, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import Page from '../components/Page';
@@ -8,7 +8,7 @@ import SearchSuggestions from '../components/search/SearchSuggestions';
 import LiveTVSearchResults from '../components/search/LiveTVSearchResults';
 import globalize from '../scripts/globalize';
 
-const Search: FunctionComponent = () => {
+const Search: FC = () => {
     const [ query, setQuery ] = useState<string>();
     const [ searchParams ] = useSearchParams();
 

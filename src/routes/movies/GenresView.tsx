@@ -1,39 +1,17 @@
-import type { BaseItemDtoQueryResult } from '@jellyfin/sdk/lib/generated-client';
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC } from 'react';
 
-import loading from '../../components/loading/loading';
+import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
+
 import GenresItemsContainer from '../../components/common/GenresItemsContainer';
 import { LibraryViewProps } from '../../types/interface';
 
-const GenresView: FC<LibraryViewProps> = ({ topParentId }) => {
-    const [ itemsResult, setItemsResult ] = useState<BaseItemDtoQueryResult>({});
-
-    const reloadItems = useCallback(() => {
-        loading.show();
-        window.ApiClient.getGenres(
-            window.ApiClient.getCurrentUserId(),
-            {
-                SortBy: 'SortName',
-                SortOrder: 'Ascending',
-                IncludeItemTypes: 'Movie',
-                Recursive: true,
-                EnableTotalRecordCount: false,
-                ParentId: topParentId
-            }
-        ).then((result) => {
-            setItemsResult(result);
-            loading.hide();
-        });
-    }, [topParentId]);
-
-    useEffect(() => {
-        reloadItems();
-    }, [reloadItems]);
-
+const GenresView: FC<LibraryViewProps> = ({ topParentId, context }) => {
     return (
         <GenresItemsContainer
+            viewType='movies'
             topParentId={topParentId}
-            itemsResult={itemsResult}
+            context={context}
+            itemType={[BaseItemKind.Movie]}
         />
     );
 };

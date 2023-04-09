@@ -1,15 +1,12 @@
-import '../../elements/emby-scroller/emby-scroller';
-import '../../elements/emby-itemscontainer/emby-itemscontainer';
-import '../../elements/emby-tabs/emby-tabs';
-import '../../elements/emby-button/emby-button';
-
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import * as mainTabsManager from '../../components/maintabsmanager';
+import Box from '@mui/material/Box';
+
+import TabsComponent from '../../components/common/TabsComponent';
 import Page from '../../components/Page';
-import globalize from '../../scripts/globalize';
-import libraryMenu from '../../scripts/libraryMenu';
+import { useGetItem } from '../../hooks/useFetchItems';
+import LibraryMenu from '../../scripts/libraryMenu';
 import * as userSettings from '../../scripts/settings/userSettings';
 import CollectionsView from './CollectionsView';
 import FavoritesView from './FavoritesView';
@@ -22,6 +19,9 @@ const getDefaultTabIndex = (folderId: string | null) => {
     switch (userSettings.get('landing-' + folderId, false)) {
         case 'suggestions':
             return 1;
+
+        case 'trailers':
+            return 2;
 
         case 'favorites':
             return 3;
@@ -37,27 +37,47 @@ const getDefaultTabIndex = (folderId: string | null) => {
     }
 };
 
-const getTabs = () => {
-    return [{
-        name: globalize.translate('Movies')
-    }, {
-        name: globalize.translate('Suggestions')
-    }, {
-        name: globalize.translate('Trailers')
-    }, {
-        name: globalize.translate('Favorites')
-    }, {
-        name: globalize.translate('Collections')
-    }, {
-        name: globalize.translate('Genres')
-    }];
+interface StringArray {
+    [index: number]: string;
+}
+
+interface NunmberArray {
+    [key: string]: number;
+}
+
+const indexToTabName: StringArray = {
+    0: 'movies',
+    1: 'suggestions',
+    2: 'trailers',
+    3: 'favorites',
+    4: 'collections',
+    5: 'genres'
+};
+
+const tabNameToIndex: NunmberArray = {
+    movies: 0,
+    suggestions: 1,
+    trailers: 2,
+    favorites: 3,
+    collections: 4,
+    genres: 5
 };
 
 const Movies: FC = () => {
-    const [ searchParams ] = useSearchParams();
-    const currentTabIndex = parseInt(searchParams.get('tab') || getDefaultTabIndex(searchParams.get('topParentId')).toString(), 10);
-    const [ selectedIndex, setSelectedIndex ] = useState(currentTabIndex);
-    const element = useRef<HTMLDivElement>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const itemId = searchParams.get('topParentId');
+
+    const currentTabIndex = tabNameToIndex[searchParams.get('tab') || indexToTabName[getDefaultTabIndex(itemId)]];
+
+    const { data: item } = useGetItem(itemId);
+
+    const onChange = useCallback(
+        (event: React.SyntheticEvent, newValue: number) => {
+            searchParams.set('tab', indexToTabName[newValue]);
+            setSearchParams(searchParams);
+        },
+        [searchParams, setSearchParams]
+    );
 
     const getTabComponent = (index: number) => {
         if (index == null) {
@@ -66,73 +86,55 @@ const Movies: FC = () => {
 
         let component;
         switch (index) {
-            case 0:
-                component = <MoviesView topParentId={searchParams.get('topParentId')} />;
-                break;
-
             case 1:
-                component = <SuggestionsView topParentId={searchParams.get('topParentId')} />;
+                component = <SuggestionsView topParentId={itemId} />;
                 break;
 
             case 2:
-                component = <TrailersView topParentId={searchParams.get('topParentId')} />;
+                component = <TrailersView topParentId={itemId} />;
                 break;
 
             case 3:
-                component = <FavoritesView topParentId={searchParams.get('topParentId')} />;
+                component = <FavoritesView topParentId={itemId} />;
                 break;
 
             case 4:
-                component = <CollectionsView topParentId={searchParams.get('topParentId')} />;
+                component = <CollectionsView topParentId={itemId} context={item?.CollectionType} />;
                 break;
 
             case 5:
-                component = <GenresView topParentId={searchParams.get('topParentId')} />;
+                component = <GenresView topParentId={itemId} context={item?.CollectionType} />;
                 break;
+            default:
+                component = <MoviesView topParentId={itemId} context={item?.CollectionType} />;
         }
 
         return component;
     };
 
-    const onTabChange = useCallback((e: { detail: { selectedTabIndex: string; }; }) => {
-        const newIndex = parseInt(e.detail.selectedTabIndex, 10);
-        setSelectedIndex(newIndex);
-    }, []);
-
     useEffect(() => {
-        const page = element.current;
-
-        if (!page) {
-            console.error('Unexpected null reference');
-            return;
+        if (item?.Type === 'CollectionFolder' && item.Name) {
+            LibraryMenu.setTitle(item.Name);
         }
-        mainTabsManager.setTabs(page, selectedIndex, getTabs, undefined, undefined, onTabChange);
-        if (!page.getAttribute('data-title')) {
-            const parentId = searchParams.get('topParentId');
-
-            if (parentId) {
-                window.ApiClient.getItem(window.ApiClient.getCurrentUserId(), parentId).then((item) => {
-                    page.setAttribute('data-title', item.Name as string);
-                    libraryMenu.setTitle(item.Name);
-                });
-            } else {
-                page.setAttribute('data-title', globalize.translate('Movies'));
-                libraryMenu.setTitle(globalize.translate('Movies'));
-            }
-        }
-    }, [onTabChange, searchParams, selectedIndex]);
+    }, [item?.CollectionType, item?.Name, item?.Type]);
 
     return (
-        <div ref={element}>
-            <Page
-                id='moviesPage'
-                className='mainAnimatedPage libraryPage backdropPage collectionEditorPage pageWithAbsoluteTabs withTabs'
-                backDropType='movie'
-            >
-                {getTabComponent(selectedIndex)}
+        <Page
+            id='moviesPage'
+            className='mainAnimatedPage backdropPage libraryPage collectionEditorPage libraryPaddingTop'
+            backDropType='movie'
+            topParentId={itemId}
+        >
+            <TabsComponent
+                selectedIndex={currentTabIndex}
+                type='movies'
+                onChange={onChange}
+            />
 
-            </Page>
-        </div>
+            <Box sx={{ paddingTop: '3.8em' }}>
+                {getTabComponent(currentTabIndex)}
+            </Box>
+        </Page>
     );
 };
 

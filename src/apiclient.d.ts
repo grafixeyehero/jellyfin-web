@@ -78,7 +78,7 @@ declare module 'jellyfin-apiclient' {
         addVirtualFolder(name: string, type?: string, refreshLibrary?: boolean, libraryOptions?: any): Promise<void>;
         appName(): string;
         appVersion(): string;
-        authenticateUserByName(name: string, password: string): Promise<AuthenticationResult>;
+        authenticateUserByName(name: string | null, password: string | null): Promise<AuthenticationResult>;
         cancelLiveTvSeriesTimer(id: string): Promise<void>;
         cancelLiveTvTimer(id: string): Promise<void>;
         cancelSyncItems(itemIds: string[], targetId?: string): Promise<void>;
@@ -95,7 +95,7 @@ declare module 'jellyfin-apiclient' {
         deleteItem(itemId: string): Promise<void>;
         deleteLiveTvRecording(id: string): Promise<void>;
         deleteUserImage(userId: string, imageType: ImageType, imageIndex?: number): Promise<void>;
-        deleteUser(userId: string): Promise<void>;
+        deleteUser(userId: string | undefined): Promise<void>;
         detectBitrate(force: boolean): Promise<number>;
         deviceId(): string;
         deviceName(): string;
@@ -211,7 +211,7 @@ declare module 'jellyfin-apiclient' {
         get(url: string): Promise<any>;
         getUserImageUrl(userId: string, options?: any): string;
         getUsers(options?: any): Promise<UserDto[]>;
-        getUser(userId: string): Promise<UserDto>;
+        getUser(userId: string | undefined | null): Promise<UserDto>;
         getUserViews(options?: any, userId: string): Promise<BaseItemDtoQueryResult>;
         getVirtualFolders(): Promise<VirtualFolderInfo[]>;
         handleMessageReceived(msg: any): void;
@@ -255,9 +255,9 @@ declare module 'jellyfin-apiclient' {
         requestSyncPlaySetRepeatMode(options?: SetRepeatModeRequestDto): Promise<void>;
         requestSyncPlaySetShuffleMode(options?: SetShuffleModeRequestDto): Promise<void>;
         requestSyncPlayUnpause(): Promise<void>;
-        resetEasyPassword(userId: string): Promise<void>;
+        resetEasyPassword(userId: string | null | undefined): Promise<void>;
         resetLiveTvTuner(id: string): Promise<void>;
-        resetUserPassword(userId: string): Promise<void>;
+        resetUserPassword(userId: string | null | undefined): Promise<void>;
         restartServer(): Promise<void>;
         sendCommand(sessionId: string, command: any): Promise<void>;
         sendMessageCommand(sessionId: string, options: GeneralCommand): Promise<void>;
@@ -280,7 +280,7 @@ declare module 'jellyfin-apiclient' {
         uninstallPluginByVersion(id: string, version: string): Promise<void>;
         uninstallPlugin(id: string): Promise<void>;
         updateDisplayPreferences(id: string, obj: DisplayPreferencesDto, userId: string, app: string): Promise<void>;
-        updateEasyPassword(userId: string, newPassword: string): Promise<void>;
+        updateEasyPassword(userId: string | null | undefined, newPassword: string): Promise<void>;
         updateFavoriteStatus(userId: string, itemId: string, isFavorite: boolean): Promise<UserItemDataDto>;
         updateItemImageIndex(itemId: string, imageType: ImageType, imageIndex: number, newIndex: number): Promise<any>;
         updateItem(item: BaseItemDto): Promise<void>;
@@ -295,13 +295,14 @@ declare module 'jellyfin-apiclient' {
         updateServerInfo(server: any, serverUrl: string): void;
         updateUserConfiguration(userId: string, configuration: UserConfiguration): Promise<void>;
         updateUserItemRating(userId: string, itemId: string, likes: boolean): Promise<UserItemDataDto>;
-        updateUserPassword(userId: string, currentPassword: string, newPassword: string): Promise<void>;
+        updateUserPassword(userId: string | null | undefined, currentPassword: string, newPassword: string): Promise<void>;
         updateUserPolicy(userId: string, policy: UserPolicy): Promise<void>;
         updateUser(user: UserDto): Promise<void>;
         updateVirtualFolderOptions(id: string, libraryOptions?: any): Promise<void>;
         uploadItemImage(itemId: string, imageType: ImageType, file: File): Promise<void>;
         uploadItemSubtitle(itemId: string, language: string, isForced: boolean, file: File): Promise<void>;
         uploadUserImage(userId: string, imageType: ImageType, file: File): Promise<void>;
+        ajax(arg0: { type: string; url: string; }, arg1: boolean): Promise<any>;
     }
 
     class AppStore {

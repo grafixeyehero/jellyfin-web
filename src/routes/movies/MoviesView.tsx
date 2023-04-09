@@ -1,28 +1,19 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC } from 'react';
+
+import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
 
 import ViewItemsContainer from '../../components/common/ViewItemsContainer';
 import { LibraryViewProps } from '../../types/interface';
 
-const MoviesView: FC<LibraryViewProps> = ({ topParentId }) => {
-    const getBasekey = useCallback(() => {
-        return 'movies';
-    }, []);
-
-    const getItemTypes = useCallback(() => {
-        return ['Movie'];
-    }, []);
-
-    const getNoItemsMessage = useCallback(() => {
-        return 'MessageNoItemsAvailable';
-    }, []);
-
+const MoviesView: FC<LibraryViewProps> = ({ topParentId, context }) => {
     return (
         <ViewItemsContainer
-            topParentId={topParentId}
+            viewType='movies'
+            parentId={topParentId}
+            context={context}
             isBtnShuffleEnabled={true}
-            getBasekey={getBasekey}
-            getItemTypes={getItemTypes}
-            getNoItemsMessage={getNoItemsMessage}
+            itemType={[BaseItemKind.Movie]}
+            noItemsMessage='MessageNoItemsAvailable'
         />
     );
 };

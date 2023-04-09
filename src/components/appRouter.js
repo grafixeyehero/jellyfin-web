@@ -639,7 +639,7 @@ class AppRouter {
                 url = '#/movies.html?topParentId=' + item.Id;
 
                 if (options && options.section === 'latest') {
-                    url += '&tab=1';
+                    url += '&tab=suggestions';
                 }
 
                 return url;
@@ -649,7 +649,7 @@ class AppRouter {
                 url = '#/tv.html?topParentId=' + item.Id;
 
                 if (options && options.section === 'latest') {
-                    url += '&tab=1';
+                    url += '&tab=suggestions';
                 }
 
                 return url;
@@ -659,7 +659,7 @@ class AppRouter {
                 url = '#/music.html?topParentId=' + item.Id;
 
                 if (options?.section === 'latest') {
-                    url += '&tab=1';
+                    url += '&tab=suggestions';
                 }
 
                 return url;

@@ -37,7 +37,7 @@ import layoutManager from './layoutManager';
 
     /**
      * Set focus on a suitable element, taking into account the previously selected.
-     * @param {HTMLElement} [container] - Element to limit scope.
+     * @param {HTMLElement | null} [container] - Element to limit scope.
      * @returns {HTMLElement} Focused element.
      */
     export function autoFocus(container) {

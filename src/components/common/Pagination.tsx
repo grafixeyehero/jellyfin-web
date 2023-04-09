@@ -1,94 +1,93 @@
 import type { BaseItemDtoQueryResult } from '@jellyfin/sdk/lib/generated-client';
-import React, { FC, useCallback, useEffect, useRef } from 'react';
-import IconButtonElement from '../../elements/IconButtonElement';
+import React, { FC, useCallback } from 'react';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import IconButton from '@mui/material/IconButton';
+
 import globalize from '../../scripts/globalize';
 import * as userSettings from '../../scripts/settings/userSettings';
-import { ViewQuerySettings } from '../../types/interface';
+import { ViewUserSettings } from '../../types/interface';
 
 interface PaginationProps {
-    viewQuerySettings: ViewQuerySettings;
-    setViewQuerySettings: React.Dispatch<React.SetStateAction<ViewQuerySettings>>;
+    viewUserSettings: ViewUserSettings;
+    setViewUserSettings: React.Dispatch<React.SetStateAction<ViewUserSettings>>;
     itemsResult?: BaseItemDtoQueryResult;
 }
 
-const Pagination: FC<PaginationProps> = ({ viewQuerySettings, setViewQuerySettings, itemsResult = {} }) => {
+const Pagination: FC<PaginationProps> = ({
+    viewUserSettings,
+    setViewUserSettings,
+    itemsResult = {}
+}) => {
     const limit = userSettings.libraryPageSize(undefined);
     const totalRecordCount = itemsResult.TotalRecordCount || 0;
-    const startIndex = viewQuerySettings.StartIndex || 0;
+    const startIndex = viewUserSettings.StartIndex || 0;
     const recordsStart = totalRecordCount ? startIndex + 1 : 0;
-    const recordsEnd = limit ? Math.min(startIndex + limit, totalRecordCount) : totalRecordCount;
+    const recordsEnd = limit ?
+        Math.min(startIndex + limit, totalRecordCount) :
+        totalRecordCount;
     const showControls = limit > 0 && limit < totalRecordCount;
-    const element = useRef<HTMLDivElement>(null);
 
     const onNextPageClick = useCallback(() => {
         if (limit > 0) {
             const newIndex = startIndex + limit;
-            setViewQuerySettings((prevState) => ({
+            setViewUserSettings((prevState) => ({
                 ...prevState,
                 StartIndex: newIndex
             }));
         }
-    }, [limit, setViewQuerySettings, startIndex]);
+    }, [limit, setViewUserSettings, startIndex]);
 
     const onPreviousPageClick = useCallback(() => {
         if (limit > 0) {
             const newIndex = Math.max(0, startIndex - limit);
-            setViewQuerySettings((prevState) => ({
+            setViewUserSettings((prevState) => ({
                 ...prevState,
                 StartIndex: newIndex
             }));
         }
-    }, [limit, setViewQuerySettings, startIndex]);
-
-    useEffect(() => {
-        const btnNextPage = element.current?.querySelector('.btnNextPage') as HTMLButtonElement;
-        if (btnNextPage) {
-            if (startIndex + limit >= totalRecordCount) {
-                btnNextPage.disabled = true;
-            } else {
-                btnNextPage.disabled = false;
-            }
-            btnNextPage.addEventListener('click', onNextPageClick);
-        }
-
-        const btnPreviousPage = element.current?.querySelector('.btnPreviousPage') as HTMLButtonElement;
-        if (btnPreviousPage) {
-            if (startIndex) {
-                btnPreviousPage.disabled = false;
-            } else {
-                btnPreviousPage.disabled = true;
-            }
-            btnPreviousPage.addEventListener('click', onPreviousPageClick);
-        }
-
-        return () => {
-            btnNextPage?.removeEventListener('click', onNextPageClick);
-            btnPreviousPage?.removeEventListener('click', onPreviousPageClick);
-        };
-    }, [totalRecordCount, onNextPageClick, onPreviousPageClick, limit, startIndex]);
+    }, [limit, setViewUserSettings, startIndex]);
 
     return (
-        <div ref={element}>
-            <div className='paging'>
-                <div className='listPaging' style={{ display: 'flex', alignItems: 'center' }}>
-                    <span>
-                        {globalize.translate('ListPaging', recordsStart, recordsEnd, totalRecordCount)}
-                    </span>
-                    {showControls && (
-                        <>
-                            <IconButtonElement
-                                is='paper-icon-button-light'
-                                className='btnPreviousPage autoSize'
-                                icon='material-icons arrow_back'
-                            />
-                            <IconButtonElement
-                                is='paper-icon-button-light'
-                                className='btnNextPage autoSize'
-                                icon='material-icons arrow_forward'
-                            />
-                        </>
+        <div className='paging'>
+            <div
+                className='listPaging'
+                style={{ display: 'flex', alignItems: 'center' }}
+            >
+                <span>
+                    {globalize.translate(
+                        'ListPaging',
+                        recordsStart,
+                        recordsEnd,
+                        totalRecordCount
                     )}
-                </div>
+                </span>
+                {showControls && (
+                    <>
+                        <IconButton
+                            title={globalize.translate('Previous')}
+                            className='paper-icon-button-light btnPreviousPage autoSize'
+                            disabled={startIndex ? false : true}
+                            onClick={onPreviousPageClick}
+                        >
+                            <ArrowBackIcon />
+                        </IconButton>
+
+                        <IconButton
+                            title={globalize.translate('Next')}
+                            className='paper-icon-button-light btnNextPage autoSize'
+                            disabled={
+                                startIndex + limit >= totalRecordCount ?
+                                    true :
+                                    false
+                            }
+                            onClick={onNextPageClick}
+                        >
+                            <ArrowForwardIcon />
+                        </IconButton>
+                    </>
+                )}
             </div>
         </div>
     );
