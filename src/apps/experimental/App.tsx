@@ -4,6 +4,9 @@ import Box from '@mui/material/Box';
 import { ThemeProvider } from '@mui/material/styles';
 import { useLocation } from 'react-router-dom';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
 import AppHeader from 'components/AppHeader';
 import Backdrop from 'components/Backdrop';
 import { useApi } from 'hooks/useApi';
@@ -24,6 +27,8 @@ interface ExperimentalAppSettings {
 const DEFAULT_EXPERIMENTAL_APP_SETTINGS: ExperimentalAppSettings = {
     isDrawerPinned: false
 };
+
+const queryClient = new QueryClient();
 
 const ExperimentalApp = () => {
     const [ appSettings, setAppSettings ] = useLocalStorage<ExperimentalAppSettings>('ExperimentalAppSettings', DEFAULT_EXPERIMENTAL_APP_SETTINGS);
@@ -48,67 +53,70 @@ const ExperimentalApp = () => {
     }, [ isDrawerActive, setIsDrawerActive ]);
 
     return (
-        <ThemeProvider theme={theme}>
-            <Backdrop />
+        <QueryClientProvider client={queryClient}>
+            <ThemeProvider theme={theme}>
+                <Backdrop />
 
-            <div style={{ display: 'none' }}>
-                {/*
+                <div style={{ display: 'none' }}>
+                    {/*
                   * TODO: These components are not used, but views interact with them directly so the need to be
                   * present in the dom. We add them in a hidden element to prevent errors.
                   */}
-                <AppHeader />
-            </div>
+                    <AppHeader />
+                </div>
 
-            <Box sx={{ display: 'flex' }}>
-                <ElevationScroll elevate={isDrawerOpen}>
-                    <AppBar
-                        position='fixed'
-                        sx={{ zIndex: (muiTheme) => muiTheme.zIndex.drawer + 1 }}
-                    >
-                        <AppToolbar
-                            isDrawerOpen={isDrawerOpen}
-                            onDrawerButtonClick={onToggleDrawer}
-                        />
-                    </AppBar>
-                </ElevationScroll>
+                <Box sx={{ display: 'flex' }}>
+                    <ElevationScroll elevate={isDrawerOpen}>
+                        <AppBar
+                            position='fixed'
+                            sx={{ zIndex: (muiTheme) => muiTheme.zIndex.drawer + 1 }}
+                        >
+                            <AppToolbar
+                                isDrawerOpen={isDrawerOpen}
+                                onDrawerButtonClick={onToggleDrawer}
+                            />
+                        </AppBar>
+                    </ElevationScroll>
 
-                <AppDrawer
-                    open={isDrawerOpen}
-                    onClose={onToggleDrawer}
-                    onOpen={onToggleDrawer}
-                />
+                    <AppDrawer
+                        open={isDrawerOpen}
+                        onClose={onToggleDrawer}
+                        onOpen={onToggleDrawer}
+                    />
 
-                <Box
-                    component='main'
-                    sx={{
-                        width: '100%',
-                        flexGrow: 1,
-                        transition: theme.transitions.create('margin', {
-                            easing: theme.transitions.easing.sharp,
-                            duration: theme.transitions.duration.leavingScreen
-                        }),
-                        marginLeft: 0,
-                        ...(isDrawerAvailable && {
-                            marginLeft: {
-                                sm: `-${DRAWER_WIDTH}px`
-                            }
-                        }),
-                        ...(isDrawerActive && {
+                    <Box
+                        component='main'
+                        sx={{
+                            width: '100%',
+                            flexGrow: 1,
                             transition: theme.transitions.create('margin', {
-                                easing: theme.transitions.easing.easeOut,
-                                duration: theme.transitions.duration.enteringScreen
+                                easing: theme.transitions.easing.sharp,
+                                duration: theme.transitions.duration.leavingScreen
                             }),
-                            marginLeft: 0
-                        })
-                    }}
-                >
-                    <div className='mainAnimatedPages skinBody' />
-                    <div className='skinBody'>
-                        <ExperimentalAppRoutes />
-                    </div>
+                            marginLeft: 0,
+                            ...(isDrawerAvailable && {
+                                marginLeft: {
+                                    sm: `-${DRAWER_WIDTH}px`
+                                }
+                            }),
+                            ...(isDrawerActive && {
+                                transition: theme.transitions.create('margin', {
+                                    easing: theme.transitions.easing.easeOut,
+                                    duration: theme.transitions.duration.enteringScreen
+                                }),
+                                marginLeft: 0
+                            })
+                        }}
+                    >
+                        <div className='mainAnimatedPages skinBody' />
+                        <div className='skinBody'>
+                            <ExperimentalAppRoutes />
+                        </div>
+                    </Box>
                 </Box>
-            </Box>
-        </ThemeProvider>
+            </ThemeProvider>
+            <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
     );
 };
 

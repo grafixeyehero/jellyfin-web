@@ -638,7 +638,7 @@ class AppRouter {
 
         if (context !== 'folders' && !itemHelper.isLocalItem(item)) {
             if (item.CollectionType == 'movies') {
-                url = '#/movies.html?topParentId=' + item.Id;
+                url = '#/movies.html?topParentId=' + item.Id + '&collectionType=' + item.CollectionType;
 
                 if (options && options.section === 'latest') {
                     url += '&tab=1';
@@ -648,7 +648,7 @@ class AppRouter {
             }
 
             if (item.CollectionType == 'tvshows') {
-                url = '#/tv.html?topParentId=' + item.Id;
+                url = '#/tv.html?topParentId=' + item.Id + '&collectionType=' + item.CollectionType;
 
                 if (options && options.section === 'latest') {
                     url += '&tab=1';
@@ -658,11 +658,23 @@ class AppRouter {
             }
 
             if (item.CollectionType == 'music') {
-                url = '#/music.html?topParentId=' + item.Id;
+                url = '#/music.html?topParentId=' + item.Id + '&collectionType=' + item.CollectionType;
 
                 if (options?.section === 'latest') {
                     url += '&tab=1';
                 }
+
+                return url;
+            }
+
+            if (item.CollectionType == 'books') {
+                url = '#/books.html?topParentId=' + item.Id + '&collectionType=' + item.CollectionType;
+
+                return url;
+            }
+
+            if (item.CollectionType == 'homevideos') {
+                url = '#/homevideos.html?topParentId=' + item.Id + '&collectionType=' + item.CollectionType;
 
                 return url;
             }

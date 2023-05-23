@@ -1,21 +1,21 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
-import AlphaPicker from '../alphaPicker/alphaPicker';
-import { ViewQuerySettings } from '../../types/interface';
+import AlphaPicker from 'components/alphaPicker/alphaPicker';
+import { LibraryViewSettings } from 'types/library';
 
 interface AlphaPickerContainerProps {
-    viewQuerySettings: ViewQuerySettings;
-    setViewQuerySettings: React.Dispatch<React.SetStateAction<ViewQuerySettings>>;
+    libraryViewSettings: LibraryViewSettings;
+    setLibraryViewSettings: React.Dispatch<React.SetStateAction<LibraryViewSettings>>;
 }
 
-const AlphaPickerContainer: FC<AlphaPickerContainerProps> = ({ viewQuerySettings, setViewQuerySettings }) => {
+const AlphaPickerContainer: FC<AlphaPickerContainerProps> = ({ libraryViewSettings, setLibraryViewSettings }) => {
     const [ alphaPicker, setAlphaPicker ] = useState<AlphaPicker>();
     const element = useRef<HTMLDivElement>(null);
 
-    alphaPicker?.updateControls(viewQuerySettings);
+    alphaPicker?.updateControls(libraryViewSettings);
 
     const onAlphaPickerChange = useCallback((e) => {
         const newValue = (e as CustomEvent).detail.value;
-        let updatedValue: React.SetStateAction<ViewQuerySettings>;
+        let updatedValue: React.SetStateAction<LibraryViewSettings>;
         if (newValue === '#') {
             updatedValue = {
                 NameLessThan: 'A',
@@ -27,12 +27,12 @@ const AlphaPickerContainer: FC<AlphaPickerContainerProps> = ({ viewQuerySettings
                 NameStartsWith: newValue
             };
         }
-        setViewQuerySettings((prevState) => ({
+        setLibraryViewSettings((prevState) => ({
             ...prevState,
             StartIndex: 0,
             ...updatedValue
         }));
-    }, [setViewQuerySettings]);
+    }, [setLibraryViewSettings]);
 
     useEffect(() => {
         const alphaPickerElement = element.current;
