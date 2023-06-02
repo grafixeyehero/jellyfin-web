@@ -480,13 +480,13 @@ const fetchGetUpcomingEpisodes = async (
     }
 };
 
-export const useGetUpcomingEpisodes = (parentId: ParentId) => {
+export const useGetUpcomingEpisodes = (parentId: ParentId, enableFetch: boolean) => {
     const currentApi = useApi();
     return useQuery({
         queryKey: ['UpcomingEpisodes', parentId],
         queryFn: ({ signal }) =>
             fetchGetUpcomingEpisodes(currentApi, parentId, { signal }),
-        enabled: !!parentId
+        enabled: enableFetch
     });
 };
 
