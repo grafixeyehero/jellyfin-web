@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import uuid from 'react-uuid';
 import { useGetMovieRecommendations } from 'hooks/useFetchItems';
 import Loading from 'components/loading/LoadingComponent';
@@ -12,10 +12,21 @@ interface RecommendationItemsContainerProps {
 const RecommendationItemsContainer: FC<RecommendationItemsContainerProps> = ({
     topParentId
 }) => {
+    const [ enableFetch, setEnableFetch ] = useState(false);
     const {
         isLoading,
         data: movieRecommendationsItems
-    } = useGetMovieRecommendations(topParentId);
+    } = useGetMovieRecommendations(topParentId, enableFetch);
+
+    useEffect(() => {
+        if (topParentId) {
+            setEnableFetch(true);
+        }
+
+        return () => {
+            setEnableFetch(false);
+        };
+    }, [topParentId]);
 
     if (isLoading) {
         return <Loading />;

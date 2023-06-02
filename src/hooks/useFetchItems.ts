@@ -442,13 +442,13 @@ const fetchGetMovieRecommendations = async (
     }
 };
 
-export const useGetMovieRecommendations = (parentId: ParentId) => {
+export const useGetMovieRecommendations = (parentId: ParentId, enableFetch: boolean) => {
     const currentApi = useApi();
     return useQuery({
         queryKey: ['MovieRecommendations', parentId],
         queryFn: ({ signal }) =>
             fetchGetMovieRecommendations(currentApi, parentId, { signal }),
-        enabled: !!parentId
+        enabled: enableFetch
     });
 };
 
