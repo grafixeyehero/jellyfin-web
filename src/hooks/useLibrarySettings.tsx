@@ -1,7 +1,7 @@
 import React, { createContext, FC, useContext, useEffect, useMemo } from 'react';
-import useLocalStorageState from 'use-local-storage-state';
 
 import { LibraryViewSettings } from 'types/library';
+import { useLocalStorage } from './useLocalStorage';
 
 export interface LibrarySettingsContextProps {
     libraryViewSettings: LibraryViewSettings;
@@ -43,10 +43,7 @@ export const LibrarySettingsProvider: FC<LibrarySettingsProviderProps> = ({
     viewType,
     children
 }) => {
-    const [libraryViewSettings, setLibraryViewSettings] = useLocalStorageState<LibraryViewSettings>(
-        `${viewType} - ${parentId}`, {
-            defaultValue: DEFAULT_Library_View_SETTINGS
-        });
+    const [libraryViewSettings, setLibraryViewSettings] = useLocalStorage<LibraryViewSettings>(`${viewType} - ${parentId}`, DEFAULT_Library_View_SETTINGS);
 
     const context = useMemo(
         () => ({
