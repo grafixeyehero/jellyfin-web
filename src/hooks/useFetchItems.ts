@@ -43,7 +43,7 @@ import { getUserLibraryApi } from '@jellyfin/sdk/lib/utils/api/user-library-api'
 import { getUserViewsApi } from '@jellyfin/sdk/lib/utils/api/user-views-api';
 import { getSystemApi } from '@jellyfin/sdk/lib/utils/api/system-api';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 
 import { JellyfinApiContext, useApi } from './useApi';
 import { useLibrarySettings } from './useLibrarySettings';
