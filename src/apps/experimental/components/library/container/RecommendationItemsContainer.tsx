@@ -1,5 +1,4 @@
 import React, { FC, useEffect, useState } from 'react';
-import uuid from 'react-uuid';
 import { useGetMovieRecommendations } from 'hooks/useFetchItems';
 import Loading from 'components/loading/LoadingComponent';
 import globalize from 'scripts/globalize';
@@ -44,10 +43,11 @@ const RecommendationItemsContainer: FC<RecommendationItemsContainerProps> = ({
                     </p>
                 </div>
             ) : (
-                movieRecommendationsItems.map((recommendation) => {
+                movieRecommendationsItems.map((recommendation, index) => {
                     return (
                         <RecommendationContainer
-                            key={uuid()} // use a unique id return value may have same id
+                            // eslint-disable-next-line react/no-array-index-key
+                            key={index} // use a unique id return value may have duplicate id
                             recommendation={recommendation}
                         />
                     );
