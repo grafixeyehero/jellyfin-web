@@ -184,6 +184,33 @@ const TabRoutes: TabRoute[] = [
                 value: LibraryTab.Episodes
             }
         ]
+    },
+    {
+        path: '/homevideos.html',
+        tabs: [
+            {
+                index: 0,
+                label: globalize.translate('Photos'),
+                value: LibraryTab.Photos,
+                isDefault: true
+            },
+            {
+                index: 1,
+                label: globalize.translate('Videos'),
+                value: LibraryTab.Videos
+            }
+        ]
+    },
+    {
+        path: '/books.html',
+        tabs: [
+            {
+                index: 0,
+                label: globalize.translate('Books'),
+                value: LibraryTab.Books,
+                isDefault: true
+            }
+        ]
     }
 ];
 

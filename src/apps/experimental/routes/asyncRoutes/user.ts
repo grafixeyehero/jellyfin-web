@@ -6,5 +6,7 @@ export const ASYNC_USER_ROUTES: AsyncRoute[] = [
     { path: 'home.html', page: 'home', type: AsyncRouteType.Experimental },
     { path: 'movies.html', page: 'movies', type: AsyncRouteType.Experimental },
     { path: 'tv.html', page: 'shows', type: AsyncRouteType.Experimental },
-    { path: 'music.html', page: 'music', type: AsyncRouteType.Experimental }
+    { path: 'music.html', page: 'music', type: AsyncRouteType.Experimental },
+    { path: 'books.html', page: 'books', type: AsyncRouteType.Experimental },
+    { path: 'homevideos.html', page: 'homevideos', type: AsyncRouteType.Experimental }
 ];

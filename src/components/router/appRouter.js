@@ -667,6 +667,22 @@ class AppRouter {
 
                 return url;
             }
+
+            const layoutMode = localStorage.getItem('layout');
+
+            if (layoutMode === 'experimental') {
+                if (item.CollectionType == 'homevideos') {
+                    url = '#/homevideos.html?topParentId=' + item.Id;
+
+                    return url;
+                }
+
+                if (item.CollectionType == 'books') {
+                    url = '#/books.html?topParentId=' + item.Id;
+
+                    return url;
+                }
+            }
         }
 
         const itemTypes = ['Playlist', 'TvChannel', 'Program', 'BoxSet', 'MusicAlbum', 'MusicGenre', 'Person', 'Recording', 'MusicArtist'];
