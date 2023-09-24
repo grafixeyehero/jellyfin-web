@@ -1,61 +1,40 @@
 import React, { FC } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-
+import { useGetItem } from 'hooks/useFetchItems';
 import { getDefaultTabIndex } from '../../components/tabs/tabRoutes';
 import Page from 'components/Page';
-import GenresView from './GenresView';
-import SuggestionsView from './SuggestionsView';
-import AlbumArtistsView from './AlbumArtistsView';
-import ArtistsView from './ArtistsView';
-import PlaylistsView from './PlaylistsView';
-import SongsView from './SongsView';
-import AlbumsView from './AlbumsView';
+import Loading from 'components/loading/LoadingComponent';
+import ViewContent from 'apps/experimental/components/library/ViewContent';
+import { LibraryTab } from 'types/libraryTab';
 
-const Shows: FC = () => {
+interface StringArray {
+    [index: number]: LibraryTab;
+}
+
+const indexToTabName: StringArray = {
+    0: LibraryTab.Albums,
+    1: LibraryTab.Suggestions,
+    2: LibraryTab.AlbumArtists,
+    3: LibraryTab.Artists,
+    4: LibraryTab.Playlists,
+    5: LibraryTab.Songs,
+    6: LibraryTab.Genres
+};
+
+const Music: FC = () => {
     const location = useLocation();
-    const [ searchParams ] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const searchParamsParentId = searchParams.get('topParentId');
     const searchParamsTab = searchParams.get('tab');
-    const currentTabIndex = searchParamsTab !== null ? parseInt(searchParamsTab, 10) :
-        getDefaultTabIndex(location.pathname, searchParamsParentId);
+    const currentTabIndex =
+        searchParamsTab !== null ?
+            parseInt(searchParamsTab, 10) :
+            getDefaultTabIndex(location.pathname, searchParamsParentId);
+    const viewType = indexToTabName[currentTabIndex];
 
-    const getTabComponent = (index: number) => {
-        if (index == null) {
-            throw new Error('index cannot be null');
-        }
+    const { isLoading, data: item } = useGetItem(searchParamsParentId);
 
-        let component;
-        switch (index) {
-            case 1:
-                component = <SuggestionsView parentId={searchParamsParentId} />;
-                break;
-
-            case 2:
-                component = <AlbumArtistsView parentId={searchParamsParentId} />;
-                break;
-
-            case 3:
-                component = <ArtistsView parentId={searchParamsParentId} />;
-                break;
-
-            case 4:
-                component = <PlaylistsView parentId={searchParamsParentId} />;
-                break;
-
-            case 5:
-                component = <SongsView parentId={searchParamsParentId} />;
-                break;
-
-            case 6:
-                component = <GenresView parentId={searchParamsParentId} />;
-                break;
-
-            default:
-                component = <AlbumsView parentId={searchParamsParentId} />;
-        }
-
-        return component;
-    };
+    if (isLoading) return <Loading />;
 
     return (
         <Page
@@ -63,10 +42,13 @@ const Shows: FC = () => {
             className='mainAnimatedPage libraryPage backdropPage collectionEditorPage pageWithAbsoluteTabs withTabs'
             backDropType='musicartist'
         >
-            {getTabComponent(currentTabIndex)}
-
+            <ViewContent
+                key={`${viewType} - ${item?.Id}`}
+                viewType={viewType}
+                item={item}
+            />
         </Page>
     );
 };
 
-export default Shows;
+export default Music;

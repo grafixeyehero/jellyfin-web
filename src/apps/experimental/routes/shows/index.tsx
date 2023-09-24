@@ -1,56 +1,39 @@
 import React, { FC } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-
+import { useGetItem } from 'hooks/useFetchItems';
 import { getDefaultTabIndex } from '../../components/tabs/tabRoutes';
 import Page from 'components/Page';
-import GenresView from './GenresView';
-import SuggestionsView from './SuggestionsView';
-import StudiosView from './StudiosView';
-import EpisodesView from './EpisodesView';
-import SeriesView from './SeriesView';
-import UpComingView from './UpComingView';
+import Loading from 'components/loading/LoadingComponent';
+import ViewContent from 'apps/experimental/components/library/ViewContent';
+import { LibraryTab } from 'types/libraryTab';
+
+interface StringArray {
+    [index: number]: LibraryTab;
+}
+
+const indexToTabName: StringArray = {
+    0: LibraryTab.Shows,
+    1: LibraryTab.Suggestions,
+    2: LibraryTab.Upcoming,
+    3: LibraryTab.Genres,
+    4: LibraryTab.Networks,
+    5: LibraryTab.Episodes
+};
 
 const Shows: FC = () => {
     const location = useLocation();
-    const [ searchParams ] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const searchParamsParentId = searchParams.get('topParentId');
     const searchParamsTab = searchParams.get('tab');
-    const currentTabIndex = searchParamsTab !== null ? parseInt(searchParamsTab, 10) :
-        getDefaultTabIndex(location.pathname, searchParamsParentId);
+    const currentTabIndex =
+        searchParamsTab !== null ?
+            parseInt(searchParamsTab, 10) :
+            getDefaultTabIndex(location.pathname, searchParamsParentId);
+    const viewType = indexToTabName[currentTabIndex];
 
-    const getTabComponent = (index: number) => {
-        if (index == null) {
-            throw new Error('index cannot be null');
-        }
+    const { isLoading, data: item } = useGetItem(searchParamsParentId);
 
-        let component;
-        switch (index) {
-            case 1:
-                component = <SuggestionsView parentId={searchParamsParentId} />;
-                break;
-
-            case 2:
-                component = <UpComingView parentId={searchParamsParentId} />;
-                break;
-
-            case 3:
-                component = <GenresView parentId={searchParamsParentId} />;
-                break;
-
-            case 4:
-                component = <StudiosView parentId={searchParamsParentId} />;
-                break;
-
-            case 5:
-                component = <EpisodesView parentId={searchParamsParentId} />;
-                break;
-
-            default:
-                component = <SeriesView parentId={searchParamsParentId} />;
-        }
-
-        return component;
-    };
+    if (isLoading) return <Loading />;
 
     return (
         <Page
@@ -58,8 +41,11 @@ const Shows: FC = () => {
             className='mainAnimatedPage libraryPage backdropPage collectionEditorPage pageWithAbsoluteTabs withTabs'
             backDropType='series'
         >
-            {getTabComponent(currentTabIndex)}
-
+            <ViewContent
+                key={`${viewType} - ${item?.Id}`}
+                viewType={viewType}
+                item={item}
+            />
         </Page>
     );
 };

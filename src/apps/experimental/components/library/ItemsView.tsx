@@ -1,11 +1,11 @@
-import type { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
+import { BaseItemDto } from '@jellyfin/sdk/lib/generated-client';
 import { ItemSortBy } from '@jellyfin/sdk/lib/models/api/item-sort-by';
 import React, { FC } from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useLocalStorage } from 'hooks/useLocalStorage';
-import { useGetItem, useGetItemsViewByType } from 'hooks/useFetchItems';
-import { getDefaultLibraryViewSettings, getSettingsKey } from 'utils/items';
+import { useGetItemsViewByType } from 'hooks/useFetchItems';
+import { getDefaultLibraryViewSettings, getItemTypesEnum, getSettingsKey } from 'utils/items';
 import Loading from 'components/loading/LoadingComponent';
 import { playbackManager } from 'components/playback/playbackmanager';
 import AlphabetPicker from './AlphabetPicker';
@@ -18,44 +18,22 @@ import QueueButton from './QueueButton';
 import ShuffleButton from './ShuffleButton';
 import SortButton from './SortButton';
 import GridListViewButton from './GridListViewButton';
-import { LibraryViewSettings, ParentId } from 'types/library';
+import { LibraryViewSettings } from 'types/library';
 import { CollectionType } from 'types/collectionType';
 import { LibraryTab } from 'types/libraryTab';
 
 interface ItemsViewProps {
     viewType: LibraryTab;
-    parentId: ParentId;
-    collectionType?: CollectionType;
-    isBtnPlayAllEnabled?: boolean;
-    isBtnQueueEnabled?: boolean;
-    isBtnShuffleEnabled?: boolean;
-    isBtnSortEnabled?: boolean;
-    isBtnFilterEnabled?: boolean;
-    isBtnNewCollectionEnabled?: boolean;
-    isBtnGridListEnabled?: boolean;
-    isAlphabetPickerEnabled?: boolean;
-    itemType: BaseItemKind[];
-    noItemsMessage: string;
+    item?: BaseItemDto
 }
 
 const ItemsView: FC<ItemsViewProps> = ({
     viewType,
-    parentId,
-    collectionType,
-    isBtnPlayAllEnabled = false,
-    isBtnQueueEnabled = false,
-    isBtnShuffleEnabled = false,
-    isBtnSortEnabled = true,
-    isBtnFilterEnabled = true,
-    isBtnNewCollectionEnabled = false,
-    isBtnGridListEnabled = true,
-    isAlphabetPickerEnabled = true,
-    itemType,
-    noItemsMessage
+    item
 }) => {
     const [libraryViewSettings, setLibraryViewSettings] =
         useLocalStorage<LibraryViewSettings>(
-            getSettingsKey(viewType, parentId),
+            getSettingsKey(viewType, item?.Id),
             getDefaultLibraryViewSettings(viewType)
         );
 
@@ -66,11 +44,45 @@ const ItemsView: FC<ItemsViewProps> = ({
         isPreviousData
     } = useGetItemsViewByType(
         viewType,
-        parentId,
-        itemType,
+        item,
         libraryViewSettings
     );
-    const { data: item } = useGetItem(parentId);
+
+    const isBtnPlayAllEnabled =
+        viewType !== LibraryTab.Collections
+        && viewType !== LibraryTab.Trailers
+        && viewType !== LibraryTab.AlbumArtists
+        && viewType !== LibraryTab.Artists
+        && viewType !== LibraryTab.Photos;
+
+    const isBtnShuffleEnabled =
+        viewType !== LibraryTab.Collections
+        && viewType !== LibraryTab.Trailers
+        && viewType !== LibraryTab.AlbumArtists
+        && viewType !== LibraryTab.Artists
+        && viewType !== LibraryTab.Photos;
+
+    const isBtnQueueEnabled = false;
+
+    const isBtnGridListEnabled =
+        viewType !== LibraryTab.Songs && viewType !== LibraryTab.Trailers;
+
+    const isBtnSortEnabled = viewType !== LibraryTab.Collections;
+
+    const isBtnFilterEnabled = viewType !== LibraryTab.Collections;
+
+    const isBtnNewCollectionEnabled = viewType === LibraryTab.Collections;
+
+    const visibleAlphaPicker = [
+        LibraryTab.Movies,
+        LibraryTab.Favorites,
+        LibraryTab.Trailers,
+        LibraryTab.Series,
+        LibraryTab.Episodes,
+        LibraryTab.Albums,
+        LibraryTab.AlbumArtists,
+        LibraryTab.Artists
+    ];
 
     const totalRecordCount = itemsResult?.TotalRecordCount ?? 0;
     const items = itemsResult?.Items ?? [];
@@ -131,8 +143,8 @@ const ItemsView: FC<ItemsViewProps> = ({
                 )}
                 {isBtnFilterEnabled && (
                     <FilterButton
-                        parentId={parentId}
-                        itemType={itemType}
+                        parentId={item?.Id}
+                        itemType={getItemTypesEnum(viewType)}
                         viewType={viewType}
                         hasFilters={hasFilters}
                         libraryViewSettings={libraryViewSettings}
@@ -149,7 +161,7 @@ const ItemsView: FC<ItemsViewProps> = ({
                 )}
             </Box>
 
-            {isAlphabetPickerEnabled && hasSortName && (
+            {visibleAlphaPicker.includes(viewType) && hasSortName && (
                 <AlphabetPicker
                     libraryViewSettings={libraryViewSettings}
                     setLibraryViewSettings={setLibraryViewSettings}
@@ -162,8 +174,7 @@ const ItemsView: FC<ItemsViewProps> = ({
                 <ItemsContainer
                     libraryViewSettings={libraryViewSettings}
                     viewType={viewType}
-                    collectionType={collectionType}
-                    noItemsMessage={noItemsMessage}
+                    collectionType={item?.CollectionType as CollectionType}
                     items={items}
                 />
             )}
