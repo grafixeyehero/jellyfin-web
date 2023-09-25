@@ -1,20 +1,17 @@
 import React, { FC } from 'react';
-import { useGetItemsBySectionType } from 'hooks/useFetchItems';
+import SectionContainer from './SectionContainer';
 import globalize from 'scripts/globalize';
-
 import Loading from 'components/loading/LoadingComponent';
 import { appRouter } from 'components/router/appRouter';
-import SectionContainer from './SectionContainer';
-
 import { Sections } from 'types/suggestionsSections';
-import { ParentId } from 'types/library';
+import { useGetItemsByFavoriteType } from 'hooks/useFetchItems';
 
-interface SuggestionsSectionContainerProps {
-    parentId: ParentId;
+interface FavoritesSectionContainerProps {
+    parentId?: string | null;
     section: Sections;
 }
 
-const SuggestionsSectionContainer: FC<SuggestionsSectionContainerProps> = ({
+const FavoritesSectionContainer: FC<FavoritesSectionContainerProps> = ({
     parentId,
     section
 }) => {
@@ -22,11 +19,11 @@ const SuggestionsSectionContainer: FC<SuggestionsSectionContainerProps> = ({
         return appRouter.getRouteUrl('list', {
             serverId: window.ApiClient.serverId(),
             itemTypes: section.type,
-            parentId: parentId
+            isFavorite: true
         });
     };
 
-    const { isLoading, data: items } = useGetItemsBySectionType(
+    const { isLoading, data: items } = useGetItemsByFavoriteType(
         section,
         parentId
     );
@@ -41,10 +38,13 @@ const SuggestionsSectionContainer: FC<SuggestionsSectionContainerProps> = ({
             items={items ?? []}
             url={getRouteUrl()}
             cardOptions={{
-                ...section.cardOptions
+                ...section.cardOptions,
+                overlayText: section.cardOptions.overlayText !== false,
+                scalable: true,
+                cardLayout: false
             }}
         />
     );
 };
 
-export default SuggestionsSectionContainer;
+export default FavoritesSectionContainer;

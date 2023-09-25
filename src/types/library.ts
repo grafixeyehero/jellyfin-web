@@ -4,11 +4,12 @@ import type { SortOrder } from '@jellyfin/sdk/lib/generated-client/models/sort-o
 import type { SeriesStatus } from '@jellyfin/sdk/lib/generated-client/models/series-status';
 import type { ImageType } from '@jellyfin/sdk/lib/generated-client';
 import { ItemSortBy } from '@jellyfin/sdk/lib/models/api/item-sort-by';
+import { LibraryTab } from './libraryTab';
 
 export type ParentId = string | null | undefined;
 
 export interface LibraryViewProps {
-    parentId: string | null;
+    parentId: ParentId;
 }
 
 export enum FeatureFilters {
@@ -63,4 +64,9 @@ export interface LibraryViewSettings {
     ShowYear?: boolean;
     Filters?: Filters;
     Alphabet?: string | null;
+}
+
+export interface LibraryViewSelectOptions {
+    title: string;
+    value: LibraryTab;
 }

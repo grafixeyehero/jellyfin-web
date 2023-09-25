@@ -93,16 +93,11 @@ const TabRoutes: TabRoute[] = [
             },
             {
                 index: 3,
-                label: globalize.translate('Favorites'),
-                value: LibraryTab.Favorites
-            },
-            {
-                index: 4,
                 label: globalize.translate('Collections'),
                 value: LibraryTab.Collections
             },
             {
-                index: 5,
+                index: 4,
                 label: globalize.translate('Genres'),
                 value: LibraryTab.Genres
             }
@@ -182,6 +177,38 @@ const TabRoutes: TabRoute[] = [
                 index: 5,
                 label: globalize.translate('Episodes'),
                 value: LibraryTab.Episodes
+            }
+        ]
+    },
+    {
+        path: '/homevideos.html',
+        tabs: [
+            {
+                index: 0,
+                label: globalize.translate('HeaderPhotoAlbums'),
+                value: LibraryTab.PhotoAlbums,
+                isDefault: true
+            },
+            {
+                index: 1,
+                label: globalize.translate('Photos'),
+                value: LibraryTab.Photos
+            },
+            {
+                index: 2,
+                label: globalize.translate('HeaderVideos'),
+                value: LibraryTab.Videos
+            }
+        ]
+    },
+    {
+        path: '/books.html',
+        tabs: [
+            {
+                index: 0,
+                label: globalize.translate('Books'),
+                value: LibraryTab.Books,
+                isDefault: true
             }
         ]
     }

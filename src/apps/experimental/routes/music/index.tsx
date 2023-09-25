@@ -12,14 +12,16 @@ interface StringArray {
 }
 
 const indexToTabName: StringArray = {
-    0: LibraryTab.Movies,
+    0: LibraryTab.Albums,
     1: LibraryTab.Suggestions,
-    2: LibraryTab.Trailers,
-    3: LibraryTab.Collections,
-    4: LibraryTab.Genres
+    2: LibraryTab.AlbumArtists,
+    3: LibraryTab.Artists,
+    4: LibraryTab.Playlists,
+    5: LibraryTab.Songs,
+    6: LibraryTab.Genres
 };
 
-const Movies: FC = () => {
+const Music: FC = () => {
     const location = useLocation();
     const [searchParams] = useSearchParams();
     const searchParamsParentId = searchParams.get('topParentId');
@@ -36,9 +38,9 @@ const Movies: FC = () => {
 
     return (
         <Page
-            id='moviesPage'
+            id='musicPage'
             className='mainAnimatedPage libraryPage backdropPage collectionEditorPage pageWithAbsoluteTabs withTabs'
-            backDropType='movie'
+            backDropType='musicartist'
         >
             <ViewContent
                 key={`${viewType} - ${item?.Id}`}
@@ -49,4 +51,4 @@ const Movies: FC = () => {
     );
 };
 
-export default Movies;
+export default Music;
