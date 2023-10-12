@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import itemHelper from 'components/itemHelper';
 import PlayStateButton from 'elements/emby-playstatebutton/PlayedButton';
 import RatingButton from 'elements/emby-ratingbutton/FavoriteButton';
-import ButtonMore from './Buttons/ButtonMore';
+import ContextMenuButton from './Buttons/ContextMenuButton';
 import AddToListButton from './Buttons/AddToListButton';
 import InfoButton from './Buttons/InfoButton';
 import RightButtons from './Buttons/RightButtons';
@@ -75,8 +75,9 @@ const ListViewUserDataButtons: FC<ListViewUserDataButtonsProps> = ({
             )}
 
             {listOptions.moreButton !== false && (
-                <ButtonMore
-                    className='paper-icon-button-light listItemButton itemAction'
+                <ContextMenuButton
+                    className='paper-icon-button-light listItemButton'
+                    item={item}
                 />
             )}
         </Box>
