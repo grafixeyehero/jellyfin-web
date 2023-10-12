@@ -1,0 +1,20 @@
+export type DataAttributes = {
+    'data-playlistitemid'?: string | null;
+    'data-timerid'?: string | null;
+    'data-seriestimerid'?: string | null;
+    'data-isfolder'?: boolean | null;
+    'data-serverid'?: string | null;
+    'data-id'?: string | null;
+    'data-type'?: string | null;
+    'data-positionticks'?: number | null;
+    'data-collectionid'?: string | null;
+    'data-playlistid'?: string | null;
+    'data-mediatype'?: string | null;
+    'data-channelid'?: string | null;
+    'data-path'?: string | null;
+    'data-collectiontype'?: string | null;
+    'data-context'?: string | null;
+    'data-parentid'?: string | null;
+    'data-startdate'?: string | null;
+    'data-enddate'?: string | null;
+};
