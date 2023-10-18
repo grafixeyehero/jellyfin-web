@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from 'axios';
 import type { ItemsApiGetItemsRequest } from '@jellyfin/sdk/lib/generated-client';
 import type { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
 import { ImageType } from '@jellyfin/sdk/lib/generated-client/models/image-type';
@@ -13,8 +14,8 @@ import { getMoviesApi } from '@jellyfin/sdk/lib/utils/api/movies-api';
 import { getStudiosApi } from '@jellyfin/sdk/lib/utils/api/studios-api';
 import { getTvShowsApi } from '@jellyfin/sdk/lib/utils/api/tv-shows-api';
 import { getUserLibraryApi } from '@jellyfin/sdk/lib/utils/api/user-library-api';
-import { AxiosRequestConfig } from 'axios';
-import { useQuery } from '@tanstack/react-query';
+import { getPlaystateApi } from '@jellyfin/sdk/lib/utils/api/playstate-api';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { JellyfinApiContext, useApi } from './useApi';
 import { getAlphaPickerQuery, getFieldsQuery, getFiltersQuery, getLimitQuery } from 'utils/items';
@@ -507,5 +508,77 @@ export const useGetItemsViewByType = (
                 LibraryTab.Photos,
                 LibraryTab.Videos
             ].includes(viewType) && !!parentId
+    });
+};
+
+interface ToggleFavoriteMutationProp {
+    itemId: string;
+    isFavorite: boolean | undefined
+}
+
+const fetchUpdateFavoriteStatus = async (
+    currentApi: JellyfinApiContext,
+    itemId: string,
+    isFavorite: boolean | undefined
+) => {
+    const { api, user } = currentApi;
+    if (api && user?.Id) {
+        if (isFavorite) {
+            const response = await getUserLibraryApi(api).unmarkFavoriteItem({
+                userId: user?.Id,
+                itemId: itemId
+            });
+            return response.data;
+        } else {
+            const response = await getUserLibraryApi(api).markFavoriteItem({
+                userId: user?.Id,
+                itemId: itemId
+            });
+            return response.data;
+        }
+    }
+};
+
+export const useToggleFavoriteMutation = () => {
+    const currentApi = useApi();
+    return useMutation({
+        mutationFn: ({ itemId, isFavorite }: ToggleFavoriteMutationProp) =>
+            fetchUpdateFavoriteStatus(currentApi, itemId, isFavorite )
+    });
+};
+
+interface TogglePlayedMutationProp {
+    itemId: string;
+    isPlayed: boolean | undefined
+}
+
+const fetchUpdatePlayedState = async (
+    currentApi: JellyfinApiContext,
+    itemId: string,
+    isPlayed: boolean | undefined
+) => {
+    const { api, user } = currentApi;
+    if (api && user?.Id) {
+        if (isPlayed) {
+            const response = await getPlaystateApi(api).markUnplayedItem({
+                userId: user?.Id,
+                itemId: itemId
+            });
+            return response.data;
+        } else {
+            const response = await getPlaystateApi(api).markPlayedItem({
+                userId: user?.Id,
+                itemId: itemId
+            });
+            return response.data;
+        }
+    }
+};
+
+export const useTogglePlayedMutation = () => {
+    const currentApi = useApi();
+    return useMutation({
+        mutationFn: ({ itemId, isPlayed }: TogglePlayedMutationProp) =>
+            fetchUpdatePlayedState(currentApi, itemId, isPlayed )
     });
 };
