@@ -1,28 +1,87 @@
+import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client';
 import { ItemFields } from '@jellyfin/sdk/lib/generated-client/models/item-fields';
 import { ImageType } from '@jellyfin/sdk/lib/generated-client/models/image-type';
 import { ItemSortBy } from '@jellyfin/sdk/lib/models/api/item-sort-by';
 import { SortOrder } from '@jellyfin/sdk/lib/generated-client/models/sort-order';
 import * as userSettings from 'scripts/settings/userSettings';
-import { EpisodeFilter, FeatureFilters, LibraryViewSettings, ParentId, VideoBasicFilter, ViewMode } from '../types/library';
+import {
+    EpisodeFilter,
+    FeatureFilters,
+    LibraryViewSettings,
+    ParentId,
+    VideoBasicFilter,
+    ViewMode
+} from '../types/library';
 import { LibraryTab } from 'types/libraryTab';
 
-export const getVideoBasicFilter = (libraryViewSettings: LibraryViewSettings) => {
+interface ItemType {
+    [key: string]: BaseItemKind;
+}
+
+export const viewTypeToBaseItemKind: ItemType = {
+    movies: BaseItemKind.Movie,
+    trailers: BaseItemKind.Trailer,
+    collections: BaseItemKind.BoxSet,
+    albums: BaseItemKind.MusicAlbum,
+    playlists: BaseItemKind.Playlist,
+    songs: BaseItemKind.Audio,
+    shows: BaseItemKind.Series,
+    episodes: BaseItemKind.Episode,
+    photos: BaseItemKind.Photo,
+    photoalbums: BaseItemKind.PhotoAlbum,
+    videos: BaseItemKind.Video,
+    books: BaseItemKind.Book
+};
+
+export const getItemTypesEnum = (collectionType: string | null | undefined) => {
+    const itemType: BaseItemKind[] = [];
+
+    if (collectionType === 'movies') {
+        itemType.push(BaseItemKind.Movie);
+    }
+
+    if (collectionType === 'tvshows') {
+        itemType.push(BaseItemKind.Series);
+    }
+
+    if (collectionType === 'music') {
+        itemType.push(BaseItemKind.MusicAlbum);
+    }
+
+    return itemType;
+};
+
+export const getVideoBasicFilter = (
+    libraryViewSettings: LibraryViewSettings
+) => {
     let isHd;
 
-    if (libraryViewSettings.Filters?.VideoBasicFilter?.includes(VideoBasicFilter.IsHD)) {
+    if (
+        libraryViewSettings.Filters?.VideoBasicFilter?.includes(
+            VideoBasicFilter.IsHD
+        )
+    ) {
         isHd = true;
     }
 
-    if (libraryViewSettings.Filters?.VideoBasicFilter?.includes(VideoBasicFilter.IsSD)) {
+    if (
+        libraryViewSettings.Filters?.VideoBasicFilter?.includes(
+            VideoBasicFilter.IsSD
+        )
+    ) {
         isHd = false;
     }
 
     return {
         isHd,
-        is4K: libraryViewSettings.Filters?.VideoBasicFilter?.includes(VideoBasicFilter.Is4K) ?
+        is4K: libraryViewSettings.Filters?.VideoBasicFilter?.includes(
+            VideoBasicFilter.Is4K
+        ) ?
             true :
             undefined,
-        is3D: libraryViewSettings.Filters?.VideoBasicFilter?.includes(VideoBasicFilter.Is3D) ?
+        is3D: libraryViewSettings.Filters?.VideoBasicFilter?.includes(
+            VideoBasicFilter.Is3D
+        ) ?
             true :
             undefined
     };
@@ -30,10 +89,14 @@ export const getVideoBasicFilter = (libraryViewSettings: LibraryViewSettings) =>
 
 export const getFeatureFilters = (libraryViewSettings: LibraryViewSettings) => {
     return {
-        hasSubtitles: libraryViewSettings.Filters?.Features?.includes(FeatureFilters.HasSubtitles) ?
+        hasSubtitles: libraryViewSettings.Filters?.Features?.includes(
+            FeatureFilters.HasSubtitles
+        ) ?
             true :
             undefined,
-        hasTrailer: libraryViewSettings.Filters?.Features?.includes(FeatureFilters.HasTrailer) ?
+        hasTrailer: libraryViewSettings.Filters?.Features?.includes(
+            FeatureFilters.HasTrailer
+        ) ?
             true :
             undefined,
         hasSpecialFeature: libraryViewSettings.Filters?.Features?.includes(
@@ -41,7 +104,9 @@ export const getFeatureFilters = (libraryViewSettings: LibraryViewSettings) => {
         ) ?
             true :
             undefined,
-        hasThemeSong: libraryViewSettings.Filters?.Features?.includes(FeatureFilters.HasThemeSong) ?
+        hasThemeSong: libraryViewSettings.Filters?.Features?.includes(
+            FeatureFilters.HasThemeSong
+        ) ?
             true :
             undefined,
         hasThemeVideo: libraryViewSettings.Filters?.Features?.includes(
@@ -64,9 +129,13 @@ export const getEpisodeFilter = (
             undefined,
         isMissing:
             viewType === LibraryTab.Episodes ?
-                !!libraryViewSettings.Filters?.EpisodeFilter?.includes(EpisodeFilter.IsMissing) :
+                !!libraryViewSettings.Filters?.EpisodeFilter?.includes(
+                    EpisodeFilter.IsMissing
+                ) :
                 undefined,
-        isUnaired: libraryViewSettings.Filters?.EpisodeFilter?.includes(EpisodeFilter.IsUnaired) ?
+        isUnaired: libraryViewSettings.Filters?.EpisodeFilter?.includes(
+            EpisodeFilter.IsUnaired
+        ) ?
             true :
             undefined
     };
@@ -111,9 +180,13 @@ export const getLimitQuery = () => {
     };
 };
 
-export const getAlphaPickerQuery = (libraryViewSettings: LibraryViewSettings) => {
-    const alphabetValue = libraryViewSettings.Alphabet !== null ?
-        libraryViewSettings.Alphabet : undefined;
+export const getAlphaPickerQuery = (
+    libraryViewSettings: LibraryViewSettings
+) => {
+    const alphabetValue =
+        libraryViewSettings.Alphabet !== null ?
+            libraryViewSettings.Alphabet :
+            undefined;
 
     return {
         nameLessThan: alphabetValue === '#' ? 'A' : undefined,
@@ -144,12 +217,20 @@ export const getSettingsKey = (viewType: LibraryTab, parentId: ParentId) => {
     return `${viewType} - ${parentId}`;
 };
 
-export const getDefaultLibraryViewSettings = (viewType: LibraryTab): LibraryViewSettings => {
+export const getDefaultLibraryViewSettings = (
+    viewType: LibraryTab
+): LibraryViewSettings => {
     return {
         ShowTitle: true,
         ShowYear: false,
-        ViewMode: viewType === LibraryTab.Songs ? ViewMode.ListView : ViewMode.GridView,
-        ImageType: viewType === LibraryTab.Networks ? ImageType.Thumb : ImageType.Primary,
+        ViewMode:
+            viewType === LibraryTab.Songs ?
+                ViewMode.ListView :
+                ViewMode.GridView,
+        ImageType:
+            viewType === LibraryTab.Networks ?
+                ImageType.Thumb :
+                ImageType.Primary,
         CardLayout: false,
         SortBy: ItemSortBy.SortName,
         SortOrder: SortOrder.Ascending,

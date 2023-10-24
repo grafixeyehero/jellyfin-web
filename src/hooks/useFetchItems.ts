@@ -22,6 +22,8 @@ import { getPersonsApi } from '@jellyfin/sdk/lib/utils/api/persons-api';
 import { getUserLibraryApi } from '@jellyfin/sdk/lib/utils/api/user-library-api';
 import { useQuery } from '@tanstack/react-query';
 
+import datetime from 'scripts/datetime';
+import globalize from 'scripts/globalize';
 import { type JellyfinApiContext, useApi } from './useApi';
 import {
     getAlphaPickerQuery,
@@ -29,7 +31,8 @@ import {
     getFiltersQuery,
     getLimitQuery
 } from 'utils/items';
-import { Sections, SectionsViewType } from 'types/suggestionsSections';
+import { SuggestionSectionType, SuggestionSection } from 'types/suggestionsSections';
+import { FavoriteSection, FavoriteSectionType } from 'types/favoriteSections';
 import { LibraryViewSettings, ParentId } from 'types/library';
 import { LibraryTab } from 'types/libraryTab';
 
@@ -138,7 +141,7 @@ export const useGetMovieRecommendations = (parentId: ParentId) => {
 
 const fetchGetItemsBySuggestionsType = async (
     currentApi: JellyfinApiContext,
-    sections: Sections,
+    sections: SuggestionSection,
     parentId: ParentId,
     options?: AxiosRequestConfig
 ) => {
@@ -146,7 +149,7 @@ const fetchGetItemsBySuggestionsType = async (
     if (api && user?.Id) {
         let response;
         switch (sections.viewType) {
-            case SectionsViewType.NextUp: {
+            case SuggestionSectionType.NextUp: {
                 response = (
                     await getTvShowsApi(api).getNextUp(
                         {
@@ -174,7 +177,7 @@ const fetchGetItemsBySuggestionsType = async (
                 ).data.Items;
                 break;
             }
-            case SectionsViewType.ResumeItems: {
+            case SuggestionSectionType.ResumeItems: {
                 response = (
                     await getItemsApi(api).getResumeItems(
                         {
@@ -197,7 +200,7 @@ const fetchGetItemsBySuggestionsType = async (
                 ).data.Items;
                 break;
             }
-            case SectionsViewType.LatestMedia: {
+            case SuggestionSectionType.LatestMedia: {
                 response = (
                     await getUserLibraryApi(api).getLatestMedia(
                         {
@@ -251,7 +254,7 @@ const fetchGetItemsBySuggestionsType = async (
 };
 
 export const useGetItemsBySectionType = (
-    sections: Sections,
+    sections: SuggestionSection,
     parentId: ParentId
 ) => {
     const currentApi = useApi();
@@ -272,8 +275,8 @@ type GroupsGenres = {
 
 const fetchGetGroupsGenres = async (
     currentApi: JellyfinApiContext,
-    itemType: BaseItemKind,
     parentId: ParentId,
+    itemType: BaseItemKind[],
     options?: AxiosRequestConfig
 ) => {
     const { api, user } = currentApi;
@@ -283,7 +286,7 @@ const fetchGetGroupsGenres = async (
                 userId: user.Id,
                 sortBy: [ItemSortBy.SortName],
                 sortOrder: [SortOrder.Ascending],
-                includeItemTypes: [itemType],
+                includeItemTypes: itemType,
                 enableTotalRecordCount: false,
                 parentId: parentId ?? undefined
             },
@@ -300,7 +303,7 @@ const fetchGetGroupsGenres = async (
                     userId: user.Id,
                     sortBy: [ItemSortBy.Random],
                     sortOrder: [SortOrder.Ascending],
-                    includeItemTypes: [itemType],
+                    includeItemTypes: itemType,
                     recursive: true,
                     fields: [
                         ItemFields.PrimaryImageAspectRatio,
@@ -331,15 +334,14 @@ const fetchGetGroupsGenres = async (
     }
 };
 
-export const useGetGroupsGenres = (
-    itemType: BaseItemKind,
-    parentId: ParentId
-) => {
+export const useGetGroupsGenres = (parentId: ParentId, itemType: BaseItemKind[]) => {
     const currentApi = useApi();
     return useQuery({
-        queryKey: ['GroupsGenres', itemType, parentId],
+        queryKey: ['GroupsGenres', parentId, itemType],
         queryFn: ({ signal }) =>
-            fetchGetGroupsGenres(currentApi, itemType, parentId, { signal }),
+            fetchGetGroupsGenres(currentApi, parentId, itemType, {
+                signal
+            }),
         enabled: !!parentId,
         refetchOnWindowFocus: false,
         cacheTime: 0
@@ -401,10 +403,7 @@ const fetchGetItemsViewByType = async (
                     {
                         userId: user.Id,
                         parentId: parentId ?? undefined,
-                        enableImageTypes: [
-                            libraryViewSettings.ImageType,
-                            ImageType.Backdrop
-                        ],
+                        enableImageTypes: [libraryViewSettings.ImageType, ImageType.Backdrop],
                         ...getFieldsQuery(viewType, libraryViewSettings),
                         ...getFiltersQuery(viewType, libraryViewSettings),
                         ...getLimitQuery(),
@@ -425,10 +424,7 @@ const fetchGetItemsViewByType = async (
                     {
                         userId: user.Id,
                         parentId: parentId ?? undefined,
-                        enableImageTypes: [
-                            libraryViewSettings.ImageType,
-                            ImageType.Backdrop
-                        ],
+                        enableImageTypes: [libraryViewSettings.ImageType, ImageType.Backdrop],
                         ...getFieldsQuery(viewType, libraryViewSettings),
                         ...getFiltersQuery(viewType, libraryViewSettings),
                         ...getLimitQuery(),
@@ -466,18 +462,12 @@ const fetchGetItemsViewByType = async (
                         recursive: true,
                         imageTypeLimit: 1,
                         parentId: parentId ?? undefined,
-                        enableImageTypes: [
-                            libraryViewSettings.ImageType,
-                            ImageType.Backdrop
-                        ],
+                        enableImageTypes: [libraryViewSettings.ImageType, ImageType.Backdrop],
                         ...getFieldsQuery(viewType, libraryViewSettings),
                         ...getFiltersQuery(viewType, libraryViewSettings),
                         ...getLimitQuery(),
                         ...getAlphaPickerQuery(libraryViewSettings),
-                        isFavorite:
-                            viewType === LibraryTab.Favorites ?
-                                true :
-                                undefined,
+                        isFavorite: viewType === LibraryTab.Favorites ? true : undefined,
                         sortBy: [libraryViewSettings.SortBy],
                         sortOrder: [libraryViewSettings.SortOrder],
                         includeItemTypes: itemType,
@@ -519,7 +509,7 @@ export const useGetItemsViewByType = (
                 { signal }
             ),
         refetchOnWindowFocus: false,
-        keepPreviousData: true,
+        keepPreviousData : true,
         enabled:
             [
                 LibraryTab.Movies,
@@ -535,6 +525,7 @@ export const useGetItemsViewByType = (
                 LibraryTab.Playlists,
                 LibraryTab.Songs,
                 LibraryTab.Books,
+                LibraryTab.PhotoAlbums,
                 LibraryTab.Photos,
                 LibraryTab.Videos
             ].includes(viewType) && !!parentId
@@ -578,10 +569,57 @@ export const useGetQueryFiltersLegacy = (
     });
 };
 
-const fetchGetUpcomingEpisodes = async (
+type GroupsUpcomingEpisodes = {
+    name: string;
+    items: BaseItemDto[];
+};
+
+function gropsUpcomingEpisodes(items: BaseItemDto[]) {
+    const groups: GroupsUpcomingEpisodes[] = [];
+    let currentGroupName = '';
+    let currentGroup: BaseItemDto[] = [];
+    for (const item of items) {
+        let dateText = '';
+
+        if (item.PremiereDate) {
+            try {
+                const premiereDate = datetime.parseISO8601Date(
+                    item.PremiereDate,
+                    true
+                );
+                dateText = datetime.isRelativeDay(premiereDate, -1) ?
+                    globalize.translate('Yesterday') :
+                    datetime.toLocaleDateString(premiereDate, {
+                        weekday: 'long',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+            } catch (err) {
+                console.error('error parsing timestamp for upcoming tv shows');
+            }
+        }
+
+        if (dateText != currentGroupName) {
+            if (currentGroup.length) {
+                groups.push({
+                    name: currentGroupName,
+                    items: currentGroup
+                });
+            }
+
+            currentGroupName = dateText;
+            currentGroup = [item];
+        } else {
+            currentGroup.push(item);
+        }
+    }
+    return groups;
+}
+
+const fetchGetGroupsUpcomingEpisodes = async (
     currentApi: JellyfinApiContext,
     parentId: ParentId,
-    signal: AbortSignal | undefined
+    options?: AxiosRequestConfig
 ) => {
     const { api, user } = currentApi;
     if (api && user?.Id) {
@@ -599,19 +637,23 @@ const fetchGetUpcomingEpisodes = async (
                 ]
             },
             {
-                signal: signal
+                signal: options?.signal
             }
         );
-        return response.data;
+        const items = response.data.Items ?? [];
+
+        return gropsUpcomingEpisodes(items);
     }
 };
 
-export const useGetUpcomingEpisodes = (parentId: ParentId) => {
+export const useGetGroupsUpcomingEpisodes = (parentId: ParentId) => {
     const currentApi = useApi();
     return useQuery({
-        queryKey: ['UpcomingEpisodes', parentId],
+        queryKey: ['GroupsUpcomingEpisodes', parentId],
         queryFn: ({ signal }) =>
-            fetchGetUpcomingEpisodes(currentApi, parentId, signal),
+            fetchGetGroupsUpcomingEpisodes(currentApi, parentId, {
+                signal: signal
+            }),
         enabled: !!parentId
     });
 };
@@ -619,14 +661,14 @@ export const useGetUpcomingEpisodes = (parentId: ParentId) => {
 const fetchGetItemsByFavoriteType = async (
     currentApi: JellyfinApiContext,
     parentId: ParentId,
-    sections: Sections,
-    signal: AbortSignal | undefined
+    sections: FavoriteSection,
+    options?: AxiosRequestConfig
 ) => {
     const { api, user } = currentApi;
     if (api && user?.Id) {
         let response;
         switch (sections.viewType) {
-            case SectionsViewType.Artists: {
+            case FavoriteSectionType.Artists: {
                 response = (
                     await getArtistsApi(api).getArtists(
                         {
@@ -644,13 +686,13 @@ const fetchGetItemsByFavoriteType = async (
                             ...sections.parametersOptions
                         },
                         {
-                            signal: signal
+                            signal: options?.signal
                         }
                     )
                 ).data.Items;
                 break;
             }
-            case SectionsViewType.Persons: {
+            case FavoriteSectionType.Persons: {
                 response = (
                     await getPersonsApi(api).getPersons(
                         {
@@ -666,7 +708,7 @@ const fetchGetItemsByFavoriteType = async (
                             ...sections.parametersOptions
                         },
                         {
-                            signal: signal
+                            signal: options?.signal
                         }
                     )
                 ).data.Items;
@@ -693,7 +735,7 @@ const fetchGetItemsByFavoriteType = async (
                             ...sections.parametersOptions
                         },
                         {
-                            signal: signal
+                            signal: options?.signal
                         }
                     )
                 ).data.Items;
@@ -705,14 +747,16 @@ const fetchGetItemsByFavoriteType = async (
 };
 
 export const useGetItemsByFavoriteType = (
-    sections: Sections,
+    sections: FavoriteSection,
     parentId: ParentId
 ) => {
     const currentApi = useApi();
     return useQuery({
         queryKey: ['ItemsByFavoriteType', sections.view],
         queryFn: ({ signal }) =>
-            fetchGetItemsByFavoriteType(currentApi, parentId, sections, signal),
+            fetchGetItemsByFavoriteType(currentApi, parentId, sections, {
+                signal: signal
+            }),
         enabled: !!sections.view
     });
 };

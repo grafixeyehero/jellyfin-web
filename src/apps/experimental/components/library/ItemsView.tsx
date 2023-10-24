@@ -1,13 +1,16 @@
 import type { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
+import { ImageType } from '@jellyfin/sdk/lib/generated-client';
 import { ItemSortBy } from '@jellyfin/sdk/lib/models/api/item-sort-by';
-import React, { FC } from 'react';
+import React, { FC, useCallback } from 'react';
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useLocalStorage } from 'hooks/useLocalStorage';
 import { useGetItem, useGetItemsViewByType } from 'hooks/useFetchItems';
 import { getDefaultLibraryViewSettings, getSettingsKey } from 'utils/items';
 import Loading from 'components/loading/LoadingComponent';
+import listview from 'components/listview/listview';
+import cardBuilder from 'components/cardbuilder/cardBuilder';
 import { playbackManager } from 'components/playback/playbackmanager';
+import globalize from 'scripts/globalize';
 import AlphabetPicker from './AlphabetPicker';
 import FilterButton from './filter/FilterButton';
 import ItemsContainer from './ItemsContainer';
@@ -18,9 +21,11 @@ import QueueButton from './QueueButton';
 import ShuffleButton from './ShuffleButton';
 import SortButton from './SortButton';
 import GridListViewButton from './GridListViewButton';
-import { LibraryViewSettings, ParentId } from 'types/library';
+import { LibraryViewSettings, ParentId, ViewMode } from 'types/library';
 import { CollectionType } from 'types/collectionType';
 import { LibraryTab } from 'types/libraryTab';
+
+import { CardOptions } from 'types/cardOptions';
 
 interface ItemsViewProps {
     viewType: LibraryTab;
@@ -62,7 +67,6 @@ const ItemsView: FC<ItemsViewProps> = ({
     const {
         isLoading,
         data: itemsResult,
-        isFetching,
         isPreviousData
     } = useGetItemsViewByType(
         viewType,
@@ -71,6 +75,98 @@ const ItemsView: FC<ItemsViewProps> = ({
         libraryViewSettings
     );
     const { data: item } = useGetItem(parentId);
+
+    const getCardOptions = useCallback(() => {
+        let shape;
+        let preferThumb;
+        let preferDisc;
+        let preferLogo;
+        let lines = libraryViewSettings.ShowTitle ? 2 : 0;
+
+        if (libraryViewSettings.ImageType === ImageType.Banner) {
+            shape = 'banner';
+        } else if (libraryViewSettings.ImageType === ImageType.Disc) {
+            shape = 'square';
+            preferDisc = true;
+        } else if (libraryViewSettings.ImageType === ImageType.Logo) {
+            shape = 'backdrop';
+            preferLogo = true;
+        } else if (libraryViewSettings.ImageType === ImageType.Thumb) {
+            shape = 'backdrop';
+            preferThumb = true;
+        } else {
+            shape = 'auto';
+        }
+
+        const cardOptions: CardOptions = {
+            shape: shape,
+            showTitle: libraryViewSettings.ShowTitle,
+            showYear: libraryViewSettings.ShowYear,
+            cardLayout: libraryViewSettings.CardLayout,
+            centerText: true,
+            context: collectionType,
+            coverImage: true,
+            preferThumb: preferThumb,
+            preferDisc: preferDisc,
+            preferLogo: preferLogo,
+            overlayPlayButton: false,
+            overlayMoreButton: true,
+            overlayText: !libraryViewSettings.ShowTitle
+        };
+
+        if (
+            viewType === LibraryTab.Songs
+            || viewType === LibraryTab.Albums
+            || viewType === LibraryTab.Episodes
+        ) {
+            cardOptions.showParentTitle = libraryViewSettings.ShowTitle;
+        } else if (viewType === LibraryTab.Artists) {
+            cardOptions.showYear = false;
+            lines = 1;
+        }
+
+        cardOptions.lines = lines;
+
+        return cardOptions;
+    }, [
+        libraryViewSettings.ShowTitle,
+        libraryViewSettings.ImageType,
+        libraryViewSettings.ShowYear,
+        libraryViewSettings.CardLayout,
+        collectionType,
+        viewType
+    ]);
+
+    const getItemsHtml = useCallback(() => {
+        let html = '';
+
+        if (libraryViewSettings.ViewMode === ViewMode.ListView) {
+            html = listview.getListViewHtml({
+                items: itemsResult?.Items ?? [],
+                context: collectionType
+            });
+        } else {
+            html = cardBuilder.getCardsHtml(
+                itemsResult?.Items ?? [],
+                getCardOptions()
+            );
+        }
+
+        if (!itemsResult?.Items?.length) {
+            html += '<div class="noItemsMessage centerMessage">';
+            html += '<h1>' + globalize.translate('MessageNothingHere') + '</h1>';
+            html += '<p>' + globalize.translate(noItemsMessage) + '</p>';
+            html += '</div>';
+        }
+
+        return html;
+    }, [
+        libraryViewSettings.ViewMode,
+        itemsResult?.Items,
+        collectionType,
+        getCardOptions,
+        noItemsMessage
+    ]);
 
     const totalRecordCount = itemsResult?.TotalRecordCount ?? 0;
     const items = itemsResult?.Items ?? [];
@@ -90,10 +186,6 @@ const ItemsView: FC<ItemsViewProps> = ({
                     isPreviousData={isPreviousData}
                     setLibraryViewSettings={setLibraryViewSettings}
                 />
-
-                <Box sx={{ display: 'flex', width: '20px', height: '20px', padding: '8px' }} >
-                    {isFetching ? <CircularProgress size={20} /> : null}
-                </Box>
 
                 {isBtnPlayAllEnabled && (
                     <PlayAllButton
@@ -161,10 +253,7 @@ const ItemsView: FC<ItemsViewProps> = ({
             ) : (
                 <ItemsContainer
                     libraryViewSettings={libraryViewSettings}
-                    viewType={viewType}
-                    collectionType={collectionType}
-                    noItemsMessage={noItemsMessage}
-                    items={items}
+                    getItemsHtml={getItemsHtml}
                 />
             )}
 

@@ -6,12 +6,12 @@ import Loading from 'components/loading/LoadingComponent';
 import { appRouter } from 'components/router/appRouter';
 import SectionContainer from './SectionContainer';
 
-import { Sections } from 'types/suggestionsSections';
+import { SuggestionSection } from 'types/suggestionsSections';
 import { ParentId } from 'types/library';
 
 interface SuggestionsSectionContainerProps {
     parentId: ParentId;
-    section: Sections;
+    section: SuggestionSection;
 }
 
 const SuggestionsSectionContainer: FC<SuggestionsSectionContainerProps> = ({

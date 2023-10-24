@@ -3,12 +3,12 @@ import SectionContainer from './SectionContainer';
 import globalize from 'scripts/globalize';
 import Loading from 'components/loading/LoadingComponent';
 import { appRouter } from 'components/router/appRouter';
-import { Sections } from 'types/suggestionsSections';
+import { FavoriteSection } from 'types/favoriteSections';
 import { useGetItemsByFavoriteType } from 'hooks/useFetchItems';
 
 interface FavoritesSectionContainerProps {
     parentId?: string | null;
-    section: Sections;
+    section: FavoriteSection;
 }
 
 const FavoritesSectionContainer: FC<FavoritesSectionContainerProps> = ({

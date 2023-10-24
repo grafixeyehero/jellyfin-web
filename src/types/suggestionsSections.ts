@@ -1,23 +1,13 @@
-import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
-import { ItemSortBy } from '@jellyfin/sdk/lib/models/api/item-sort-by';
-import { SortOrder } from '@jellyfin/sdk/lib/generated-client/models/sort-order';
 import { CardOptions } from './cardOptions';
+import { ParametersOptions } from './parametersOptions';
 
-interface ParametersOptions {
-    sortBy?: ItemSortBy[];
-    sortOrder?: SortOrder[];
-    includeItemTypes?: BaseItemKind[];
-}
-
-export enum SectionsViewType {
+export enum SuggestionSectionType {
     ResumeItems = 'resumeItems',
     LatestMedia = 'latestMedia',
     NextUp = 'nextUp',
-    Artists = 'artists',
-    Persons = 'persons',
 }
 
-export enum SectionsView {
+export enum SuggestionSectionView {
     ContinueWatchingMovies = 'continuewatchingmovies',
     LatestMovies = 'latestmovies',
     ContinueWatchingEpisode = 'continuewatchingepisode',
@@ -26,24 +16,13 @@ export enum SectionsView {
     LatestMusic = 'latestmusic',
     RecentlyPlayedMusic = 'recentlyplayedmusic',
     FrequentlyPlayedMusic = 'frequentlyplayedmusic',
-    FavoriteMovies = 'favoriteMovies',
-    FavoriteShows = 'favoriteShows',
-    FavoriteEpisode = 'favoriteEpisode',
-    FavoriteVideos = 'favoriteVideos',
-    FavoriteCollections = 'favoriteCollections',
-    FavoritePlaylists = 'favoritePlaylists',
-    FavoritePeople = 'favoritePeople',
-    FavoriteArtists = 'favoriteArtists',
-    FavoriteAlbums = 'favoriteAlbums',
-    FavoriteSongs = 'favoriteSongs',
-    FavoriteBooks = 'favoriteBooks',
 }
 
-export interface Sections {
+export interface SuggestionSection {
     name: string;
-    view: SectionsView;
+    view: SuggestionSectionView;
     type: string;
-    viewType?: SectionsViewType,
+    viewType?: SuggestionSectionType,
     parametersOptions?: ParametersOptions;
     cardOptions: CardOptions;
 }

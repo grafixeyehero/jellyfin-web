@@ -1,61 +1,95 @@
+import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client/models/base-item-kind';
 import React, { FC } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-
 import { getDefaultTabIndex } from '../../components/tabs/tabRoutes';
 import Page from 'components/Page';
-import GenresView from './GenresView';
-import SuggestionsView from './SuggestionsView';
-import AlbumArtistsView from './AlbumArtistsView';
-import ArtistsView from './ArtistsView';
-import PlaylistsView from './PlaylistsView';
-import SongsView from './SongsView';
-import AlbumsView from './AlbumsView';
+import PageTabContent from '../../components/library/PageTabContent';
+import { LibraryTab } from 'types/libraryTab';
+import { CollectionType } from 'types/collectionType';
+import { LibraryTabContent, LibraryTabMapping } from 'types/libraryTabContent';
+import { SuggestionSectionView } from 'types/suggestionsSections';
+import { FavoriteSectionView } from 'types/favoriteSections';
 
-const Shows: FC = () => {
+const albumArtistsTabContent: LibraryTabContent = {
+    viewType: LibraryTab.AlbumArtists,
+    collectionType: CollectionType.Music,
+    isBtnSortEnabled: false
+};
+
+const albumsTabContent: LibraryTabContent = {
+    viewType: LibraryTab.Albums,
+    collectionType: CollectionType.Music,
+    isBtnPlayAllEnabled: true,
+    isBtnShuffleEnabled: true,
+    itemType: [BaseItemKind.MusicAlbum]
+};
+
+const artistsTabContent: LibraryTabContent = {
+    viewType: LibraryTab.Artists,
+    collectionType: CollectionType.Music,
+    isBtnSortEnabled: false
+};
+
+const playlistsTabContent: LibraryTabContent = {
+    viewType: LibraryTab.Playlists,
+    isBtnFilterEnabled: false,
+    isBtnGridListEnabled: false,
+    isBtnSortEnabled: false,
+    isAlphabetPickerEnabled: false,
+    itemType: [BaseItemKind.Playlist]
+};
+
+const songsTabContent: LibraryTabContent = {
+    viewType: LibraryTab.Songs,
+    //collectionType: CollectionType.Music
+    //isBtnGridListEnabled: false
+    isAlphabetPickerEnabled: false,
+    itemType: [BaseItemKind.Audio]
+};
+
+const suggestionsTabContent: LibraryTabContent = {
+    viewType: LibraryTab.Suggestions,
+    collectionType: CollectionType.Music,
+    sectionsType: {
+        suggestionSectionViews: [
+            SuggestionSectionView.LatestMusic,
+            SuggestionSectionView.FrequentlyPlayedMusic,
+            SuggestionSectionView.RecentlyPlayedMusic
+        ],
+        favoriteSectionViews: [
+            FavoriteSectionView.FavoriteArtists,
+            FavoriteSectionView.FavoriteAlbums,
+            FavoriteSectionView.FavoriteSongs
+        ]
+    }
+};
+
+const genresTabContent: LibraryTabContent = {
+    viewType: LibraryTab.Genres,
+    collectionType: CollectionType.Music,
+    itemType: [BaseItemKind.MusicAlbum]
+};
+
+const musicTabMapping: LibraryTabMapping = {
+    0: albumsTabContent,
+    1: suggestionsTabContent,
+    2: albumArtistsTabContent,
+    3: artistsTabContent,
+    4: playlistsTabContent,
+    5: songsTabContent,
+    6: genresTabContent
+};
+
+const Music: FC = () => {
     const location = useLocation();
-    const [ searchParams ] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const searchParamsParentId = searchParams.get('topParentId');
     const searchParamsTab = searchParams.get('tab');
-    const currentTabIndex = searchParamsTab !== null ? parseInt(searchParamsTab, 10) :
-        getDefaultTabIndex(location.pathname, searchParamsParentId);
-
-    const getTabComponent = (index: number) => {
-        if (index == null) {
-            throw new Error('index cannot be null');
-        }
-
-        let component;
-        switch (index) {
-            case 1:
-                component = <SuggestionsView parentId={searchParamsParentId} />;
-                break;
-
-            case 2:
-                component = <AlbumArtistsView parentId={searchParamsParentId} />;
-                break;
-
-            case 3:
-                component = <ArtistsView parentId={searchParamsParentId} />;
-                break;
-
-            case 4:
-                component = <PlaylistsView parentId={searchParamsParentId} />;
-                break;
-
-            case 5:
-                component = <SongsView parentId={searchParamsParentId} />;
-                break;
-
-            case 6:
-                component = <GenresView parentId={searchParamsParentId} />;
-                break;
-
-            default:
-                component = <AlbumsView parentId={searchParamsParentId} />;
-        }
-
-        return component;
-    };
+    const currentTabIndex =
+        searchParamsTab !== null ?
+            parseInt(searchParamsTab, 10) :
+            getDefaultTabIndex(location.pathname, searchParamsParentId);
+    const currentTab = musicTabMapping[currentTabIndex];
 
     return (
         <Page
@@ -63,10 +97,12 @@ const Shows: FC = () => {
             className='mainAnimatedPage libraryPage backdropPage collectionEditorPage pageWithAbsoluteTabs withTabs'
             backDropType='musicartist'
         >
-            {getTabComponent(currentTabIndex)}
-
+            <PageTabContent
+                currentTab={currentTab}
+                parentId={searchParamsParentId}
+            />
         </Page>
     );
 };
 
-export default Shows;
+export default Music;

@@ -2,14 +2,14 @@ import { BaseItemKind } from '@jellyfin/sdk/lib/generated-client';
 import React, { FC } from 'react';
 import FavoritesSectionContainer from './FavoritesSectionContainer';
 import { ParentId } from 'types/library';
-import { SectionsView, SectionsViewType } from 'types/suggestionsSections';
+import { FavoriteSection, FavoriteSectionView, FavoriteSectionType } from 'types/favoriteSections';
 
-function getFavoriteSections() {
+function getFavoriteSections(): FavoriteSection[] {
     return [
         {
             name: 'HeaderFavoriteMovies',
             type: 'Movie',
-            view: SectionsView.FavoriteMovies,
+            view: FavoriteSectionView.FavoriteMovies,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Movie]
             },
@@ -25,7 +25,7 @@ function getFavoriteSections() {
         {
             name: 'HeaderFavoriteShows',
             type: 'Series',
-            view: SectionsView.FavoriteShows,
+            view: FavoriteSectionView.FavoriteShows,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Series]
             },
@@ -41,7 +41,7 @@ function getFavoriteSections() {
         {
             name: 'HeaderFavoriteEpisodes',
             type: 'Episode',
-            view: SectionsView.FavoriteEpisode,
+            view: FavoriteSectionView.FavoriteEpisode,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Episode]
             },
@@ -58,7 +58,7 @@ function getFavoriteSections() {
         {
             name: 'HeaderFavoriteVideos',
             type: 'Video,MusicVideo',
-            view: SectionsView.FavoriteVideos,
+            view: FavoriteSectionView.FavoriteVideos,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Video, BaseItemKind.MusicVideo]
             },
@@ -74,7 +74,7 @@ function getFavoriteSections() {
         {
             name: 'HeaderFavoriteCollections',
             type: 'BoxSet',
-            view: SectionsView.FavoriteCollections,
+            view: FavoriteSectionView.FavoriteCollections,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.BoxSet]
             },
@@ -89,7 +89,7 @@ function getFavoriteSections() {
         {
             name: 'HeaderFavoritePlaylists',
             type: 'Playlist',
-            view: SectionsView.FavoritePlaylists,
+            view: FavoriteSectionView.FavoritePlaylists,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Playlist]
             },
@@ -106,9 +106,9 @@ function getFavoriteSections() {
         },
         {
             name: 'HeaderFavoritePersons',
-            viewType: SectionsViewType.Persons,
+            viewType: FavoriteSectionType.Persons,
             type: 'Person',
-            view: SectionsView.FavoritePeople,
+            view: FavoriteSectionView.FavoritePeople,
             cardOptions: {
                 shape: 'overflowPortrait',
                 preferThumb: false,
@@ -122,9 +122,9 @@ function getFavoriteSections() {
         },
         {
             name: 'HeaderFavoriteArtists',
-            viewType: SectionsViewType.Artists,
+            viewType: FavoriteSectionType.Artists,
             type: 'MusicArtist',
-            view: SectionsView.FavoriteArtists,
+            view: FavoriteSectionView.FavoriteArtists,
             cardOptions: {
                 shape: 'overflowSquare',
                 preferThumb: false,
@@ -139,7 +139,7 @@ function getFavoriteSections() {
         {
             name: 'HeaderFavoriteAlbums',
             type: 'MusicAlbum',
-            view: SectionsView.FavoriteAlbums,
+            view: FavoriteSectionView.FavoriteAlbums,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.MusicAlbum]
             },
@@ -157,7 +157,7 @@ function getFavoriteSections() {
         {
             name: 'HeaderFavoriteSongs',
             type: 'Audio',
-            view: SectionsView.FavoriteSongs,
+            view: FavoriteSectionView.FavoriteSongs,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Audio]
             },
@@ -176,7 +176,7 @@ function getFavoriteSections() {
         {
             name: 'HeaderFavoriteBooks',
             type: 'Book',
-            view: SectionsView.FavoriteBooks,
+            view: FavoriteSectionView.FavoriteBooks,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Book]
             },
@@ -194,19 +194,19 @@ function getFavoriteSections() {
 
 interface FavoriteItemsContainerProps {
     parentId?: ParentId;
-    sectionsView: SectionsView[];
+    sectionsViews: FavoriteSectionView[];
 }
 
 const FavoriteItemsContainer: FC<FavoriteItemsContainerProps> = ({
     parentId,
-    sectionsView
+    sectionsViews
 }) => {
     const favoriteSections = getFavoriteSections();
 
     return (
         <>
             {favoriteSections
-                .filter((section) => sectionsView.includes(section.view))
+                .filter((section) => sectionsViews.includes(section.view))
                 .map((section) => (
                     <FavoritesSectionContainer
                         key={section.view}

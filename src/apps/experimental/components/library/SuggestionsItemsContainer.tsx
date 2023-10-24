@@ -4,16 +4,16 @@ import { SortOrder } from '@jellyfin/sdk/lib/generated-client/models/sort-order'
 import React, { FC } from 'react';
 import * as userSettings from 'scripts/settings/userSettings';
 import SuggestionsSectionContainer from './SuggestionsSectionContainer';
-import { Sections, SectionsView, SectionsViewType } from 'types/suggestionsSections';
+import { SuggestionSection, SuggestionSectionView, SuggestionSectionType } from 'types/suggestionsSections';
 import { ParentId } from 'types/library';
 
-const getSuggestionsSections = (): Sections[] => {
+const getSuggestionsSections = (): SuggestionSection[] => {
     return [
         {
             name: 'HeaderContinueWatching',
-            viewType: SectionsViewType.ResumeItems,
+            viewType: SuggestionSectionType.ResumeItems,
             type: 'Movie',
-            view: SectionsView.ContinueWatchingMovies,
+            view: SuggestionSectionView.ContinueWatchingMovies,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Movie]
             },
@@ -30,9 +30,9 @@ const getSuggestionsSections = (): Sections[] => {
         },
         {
             name: 'HeaderLatestMovies',
-            viewType: SectionsViewType.LatestMedia,
+            viewType: SuggestionSectionType.LatestMedia,
             type: 'Movie',
-            view: SectionsView.LatestMovies,
+            view: SuggestionSectionView.LatestMovies,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Movie]
             },
@@ -48,9 +48,9 @@ const getSuggestionsSections = (): Sections[] => {
         },
         {
             name: 'HeaderContinueWatching',
-            viewType: SectionsViewType.ResumeItems,
+            viewType: SuggestionSectionType.ResumeItems,
             type: 'Episode',
-            view: SectionsView.ContinueWatchingEpisode,
+            view: SuggestionSectionView.ContinueWatchingEpisode,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Episode]
             },
@@ -69,9 +69,9 @@ const getSuggestionsSections = (): Sections[] => {
         },
         {
             name: 'HeaderLatestEpisodes',
-            viewType: SectionsViewType.LatestMedia,
+            viewType: SuggestionSectionType.LatestMedia,
             type: 'Episode',
-            view: SectionsView.LatestEpisode,
+            view: SuggestionSectionView.LatestEpisode,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Episode]
             },
@@ -94,9 +94,9 @@ const getSuggestionsSections = (): Sections[] => {
         },
         {
             name: 'NextUp',
-            viewType: SectionsViewType.NextUp,
+            viewType: SuggestionSectionType.NextUp,
             type: 'nextup',
-            view: SectionsView.NextUp,
+            view: SuggestionSectionView.NextUp,
             cardOptions: {
                 scalable: true,
                 overlayPlayButton: true,
@@ -113,9 +113,9 @@ const getSuggestionsSections = (): Sections[] => {
         },
         {
             name: 'HeaderLatestMusic',
-            viewType: SectionsViewType.LatestMedia,
+            viewType: SuggestionSectionType.LatestMedia,
             type: 'Audio',
-            view: SectionsView.LatestMusic,
+            view: SuggestionSectionView.LatestMusic,
             parametersOptions: {
                 includeItemTypes: [BaseItemKind.Audio]
             },
@@ -134,7 +134,7 @@ const getSuggestionsSections = (): Sections[] => {
         {
             name: 'HeaderRecentlyPlayed',
             type: 'Audio',
-            view: SectionsView.RecentlyPlayedMusic,
+            view: SuggestionSectionView.RecentlyPlayedMusic,
             parametersOptions: {
                 sortBy: [ItemSortBy.DatePlayed],
                 sortOrder: [SortOrder.Descending],
@@ -156,7 +156,7 @@ const getSuggestionsSections = (): Sections[] => {
         {
             name: 'HeaderFrequentlyPlayed',
             type: 'Audio',
-            view: SectionsView.FrequentlyPlayedMusic,
+            view: SuggestionSectionView.FrequentlyPlayedMusic,
             parametersOptions: {
                 sortBy: [ItemSortBy.PlayCount],
                 sortOrder: [SortOrder.Descending],
@@ -180,19 +180,19 @@ const getSuggestionsSections = (): Sections[] => {
 
 interface SuggestionsItemsContainerProps {
     parentId: ParentId;
-    sectionsView: SectionsView[];
+    sectionsViews: SuggestionSectionView[];
 }
 
 const SuggestionsItemsContainer: FC<SuggestionsItemsContainerProps> = ({
     parentId,
-    sectionsView
+    sectionsViews
 }) => {
     const suggestionsSections = getSuggestionsSections();
 
     return (
         <>
             {suggestionsSections
-                .filter((section) => sectionsView.includes(section.view))
+                .filter((section) => sectionsViews.includes(section.view))
                 .map((section) => (
                     <SuggestionsSectionContainer
                         key={section.view}
