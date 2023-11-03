@@ -153,7 +153,7 @@ const Home: FunctionComponent = () => {
         <div ref={element}>
             <Page
                 id='indexPage'
-                className='mainAnimatedPage homePage libraryPage allLibraryPage backdropPage pageWithAbsoluteTabs withTabs'
+                className='mainAnimatedPage homePage libraryPage allLibraryPage backdropPage noSecondaryNavPage'
                 isBackButtonEnabled={false}
                 backDropType='movie,series,book'
             >
